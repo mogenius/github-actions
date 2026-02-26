@@ -63,7 +63,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.ref || github.ref }}
+          # ref: ${{ inputs.ref || github.ref }}
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -87,7 +88,8 @@ jobs:
         id: version
         run: |
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          GIT_BRANCH=${GITHUB_REF_NAME}
+          # GIT_BRANCH=${GITHUB_REF_NAME}
+          GIT_BRANCH=main
           BUILD_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           # Check if semantic-release published a new version
