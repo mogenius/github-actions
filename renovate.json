@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "enabledManagers": ["github-actions", "gomod", "helm-values", "helmv3"],
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
   "automerge": true,
   "automergeType": "pr",
