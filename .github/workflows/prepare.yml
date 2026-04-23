@@ -4,7 +4,11 @@ on:
   workflow_call:
     secrets:
       RELEASE_TOKEN:
-        required: true
+        required: false
+      APP_ID:
+        required: false
+      APP_PRIVATE_KEY:
+        required: false
     inputs:
       default_version:
         description: 'Default version if no input is provided'
@@ -63,12 +67,36 @@ jobs:
       is_release: ${{ steps.version.outputs.is_release }}
       semver: ${{ steps.version.outputs.semver }}
     steps:
+      - name: Validate auth configuration
+        id: auth-check
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          if [ -n "${APP_ID}" ] && [ -n "${APP_PRIVATE_KEY}" ]; then
+            echo "use_app_auth=true" >> $GITHUB_OUTPUT
+          elif [ -n "${RELEASE_TOKEN}" ]; then
+            echo "use_app_auth=false" >> $GITHUB_OUTPUT
+          else
+            echo "::error::Either RELEASE_TOKEN or both APP_ID and APP_PRIVATE_KEY must be set"
+            exit 1
+          fi
+
+      - name: Generate a token
+        id: generate-token
+        if: steps.auth-check.outputs.use_app_auth == 'true'
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.ref || github.ref }}
           # token: ${{ secrets.GITHUB_TOKEN }}
-          token: ${{ secrets.RELEASE_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -87,7 +115,7 @@ jobs:
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} 
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
 
       - name: Get version info
         id: version
