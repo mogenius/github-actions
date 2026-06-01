@@ -52,8 +52,7 @@ on:
 
 jobs:
   prepare:
-    # runs-on: arc-runner-set
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     permissions:
       contents: write
       packages: write
