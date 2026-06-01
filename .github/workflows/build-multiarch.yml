@@ -1,0 +1,265 @@
+name: Build Multi-Arch Container
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Image version tag (e.g. from prepare outputs)'
+        required: true
+        type: string
+      image:
+        description: 'Full image path without tag (e.g. ghcr.io/myorg/myimage)'
+        required: true
+        type: string
+      registry:
+        description: 'Container registry hostname for docker login'
+        required: false
+        default: 'ghcr.io'
+        type: string
+      dockerfile:
+        description: 'Path to Dockerfile'
+        required: false
+        default: './Dockerfile'
+        type: string
+      context:
+        description: 'Docker build context path'
+        required: false
+        default: '.'
+        type: string
+      architectures:
+        description: 'Comma-separated architectures to build: amd64, arm64, armv7'
+        required: false
+        default: 'amd64,arm64,armv7'
+        type: string
+      build_args:
+        description: 'Additional Docker build arguments (multiline key=value). COMMIT_HASH, GIT_BRANCH, BUILD_TIMESTAMP, VERSION are always injected.'
+        required: false
+        default: ''
+        type: string
+      build_args_amd64:
+        description: 'Extra build arguments injected only into the amd64 build job.'
+        required: false
+        default: ''
+        type: string
+      build_args_arm64:
+        description: 'Extra build arguments injected only into the arm64 build job.'
+        required: false
+        default: ''
+        type: string
+      build_args_armv7:
+        description: 'Extra build arguments injected only into the armv7 build job.'
+        required: false
+        default: ''
+        type: string
+      push_latest:
+        description: 'Push a :latest tag when building from the main branch'
+        required: false
+        default: true
+        type: boolean
+      runner_amd64:
+        description: 'Runner label for amd64 native builds'
+        required: false
+        default: 'arc-runner-set-amd64'
+        type: string
+      runner_arm64:
+        description: 'Runner label for arm64 native builds'
+        required: false
+        default: 'arc-runner-set-arm64'
+        type: string
+    outputs:
+      digest_amd64:
+        description: 'Image digest for amd64'
+        value: ${{ jobs.build-amd64.outputs.digest }}
+      digest_arm64:
+        description: 'Image digest for arm64'
+        value: ${{ jobs.build-arm64.outputs.digest }}
+      digest_armv7:
+        description: 'Image digest for armv7'
+        value: ${{ jobs.build-armv7.outputs.digest }}
+
+jobs:
+  # ============================================================================
+  # Per-architecture builds (run natively on matching runners; armv7 cross-compiles from amd64)
+  # ============================================================================
+  build-amd64:
+    if: contains(inputs.architectures, 'amd64')
+    runs-on: ${{ inputs.runner_amd64 }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get build metadata
+        id: meta
+        run: |
+          echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "git_branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Login to registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ inputs.image }}:${{ inputs.version }}-amd64
+          build-args: |
+            COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
+            GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
+            BUILD_TIMESTAMP=${{ steps.meta.outputs.build_timestamp }}
+            VERSION=${{ inputs.version }}
+            ${{ inputs.build_args }}
+            ${{ inputs.build_args_amd64 }}
+
+  build-arm64:
+    if: contains(inputs.architectures, 'arm64')
+    runs-on: ${{ inputs.runner_arm64 }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get build metadata
+        id: meta
+        run: |
+          echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "git_branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Login to registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: linux/arm64
+          push: true
+          tags: ${{ inputs.image }}:${{ inputs.version }}-arm64
+          build-args: |
+            COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
+            GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
+            BUILD_TIMESTAMP=${{ steps.meta.outputs.build_timestamp }}
+            VERSION=${{ inputs.version }}
+            ${{ inputs.build_args }}
+            ${{ inputs.build_args_arm64 }}
+
+  build-armv7:
+    # Cross-compile on amd64 — much faster than QEMU emulation on a native armv7 runner
+    if: contains(inputs.architectures, 'armv7')
+    runs-on: ${{ inputs.runner_amd64 }}
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Get build metadata
+        id: meta
+        run: |
+          echo "commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "git_branch=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> $GITHUB_OUTPUT
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Login to registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
+        with:
+          context: ${{ inputs.context }}
+          file: ${{ inputs.dockerfile }}
+          platforms: linux/arm/v7
+          push: true
+          tags: ${{ inputs.image }}:${{ inputs.version }}-armv7
+          build-args: |
+            COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
+            GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
+            BUILD_TIMESTAMP=${{ steps.meta.outputs.build_timestamp }}
+            VERSION=${{ inputs.version }}
+            ${{ inputs.build_args }}
+            ${{ inputs.build_args_armv7 }}
+
+  # ============================================================================
+  # Create multi-arch manifest combining all successfully built arch images
+  # ============================================================================
+  manifest:
+    needs: [build-amd64, build-arm64, build-armv7]
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    runs-on: ${{ inputs.runner_amd64 }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Login to registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ${{ inputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifest
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+          RESULT_AMD64: ${{ needs.build-amd64.result }}
+          RESULT_ARM64: ${{ needs.build-arm64.result }}
+          RESULT_ARMV7: ${{ needs.build-armv7.result }}
+        run: |
+          IMAGES=""
+          [ "${RESULT_AMD64}" == "success" ] && IMAGES="${IMAGES} ${IMAGE}:${VERSION}-amd64"
+          [ "${RESULT_ARM64}" == "success" ] && IMAGES="${IMAGES} ${IMAGE}:${VERSION}-arm64"
+          [ "${RESULT_ARMV7}" == "success" ] && IMAGES="${IMAGES} ${IMAGE}:${VERSION}-armv7"
+          IMAGES="${IMAGES# }"
+
+          docker buildx imagetools create -t "${IMAGE}:${VERSION}" ${IMAGES}
+
+          if [ "${{ inputs.push_latest }}" == "true" ]; then
+            docker buildx imagetools create -t "${IMAGE}:latest" ${IMAGES}
+          fi
