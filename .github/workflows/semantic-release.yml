@@ -30,6 +30,11 @@ on:
         required: false
         default: false
         type: boolean
+      runner:
+        description: 'Runner to use for the job'
+        required: false
+        default: 'self-hosted'
+        type: string
     outputs:
       commit_hash:
         description: 'Short commit hash'
@@ -52,7 +57,7 @@ on:
 
 jobs:
   prepare:
-    runs-on: [self-hosted]
+    runs-on: ${{ inputs.runner }}
     permissions:
       contents: write
       packages: write
