@@ -1,0 +1,67 @@
+name: Helm Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Path to the Helm chart directory'
+        required: true
+        type: string
+      test_files:
+        description: 'Glob pattern for test files relative to the chart directory'
+        required: false
+        default: 'unittests/**/*.yaml'
+        type: string
+      strict:
+        description: 'Run helm-unittest with --strict flag'
+        required: false
+        default: true
+        type: boolean
+      helm_unittest_version:
+        description: 'Version of the helm-unittest plugin to install'
+        required: false
+        default: 'v1.1.0' # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
+        type: string
+      update_dependencies:
+        description: 'Run helm dependency update before running tests'
+        required: false
+        default: false
+        type: boolean
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  helm-unittest:
+    runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Update chart dependencies
+        if: inputs.update_dependencies
+        run: helm dependency update .
+
+      - name: Install helm-unittest plugin
+        env:
+          HELM_UNITTEST_VERSION: ${{ inputs.helm_unittest_version }}
+        run: helm plugin install --verify=false --version "${HELM_UNITTEST_VERSION}" https://github.com/helm-unittest/helm-unittest
+
+      - name: Run helm unit tests
+        env:
+          STRICT: ${{ inputs.strict }}
+          TEST_FILES: ${{ inputs.test_files }}
+        run: |
+          ARGS=()
+          [ "${STRICT}" == "true" ] && ARGS+=("--strict")
+          helm unittest "${ARGS[@]}" --file "${TEST_FILES}" .

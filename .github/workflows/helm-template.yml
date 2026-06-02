@@ -1,0 +1,79 @@
+name: Helm Template
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Path to the Helm chart directory'
+        required: true
+        type: string
+      values:
+        description: 'Inline values YAML passed as -f (written to a temp file)'
+        required: false
+        default: ''
+        type: string
+      set:
+        description: 'Additional --set overrides. Format: "key=value" per line.'
+        required: false
+        default: ''
+        type: string
+      release_name:
+        description: 'Helm release name used during templating'
+        required: false
+        default: 'release'
+        type: string
+      namespace:
+        description: 'Kubernetes namespace used during templating'
+        required: false
+        default: 'default'
+        type: string
+      update_dependencies:
+        description: 'Run helm dependency update before templating'
+        required: false
+        default: false
+        type: boolean
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  helm-template:
+    runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install Helm
+        uses: azure/setup-helm@dda3372f752e03dde6b3237bc9431cdc2f7a02a2 # v5.0.0
+
+      - name: Update chart dependencies
+        if: inputs.update_dependencies
+        run: helm dependency update .
+
+      - name: Helm template
+        env:
+          VALUES: ${{ inputs.values }}
+          SET_OVERRIDES: ${{ inputs.set }}
+        run: |
+          ARGS=("${{ inputs.release_name }}" . --namespace "${{ inputs.namespace }}")
+
+          if [ -n "${VALUES}" ]; then
+            printf '%s' "${VALUES}" > /tmp/helm-values.yaml
+            ARGS+=(-f /tmp/helm-values.yaml)
+          fi
+
+          if [ -n "${SET_OVERRIDES}" ]; then
+            while IFS= read -r line; do
+              [ -z "$line" ] && continue
+              ARGS+=(--set "${line}")
+            done < <(printf '%s\n' "${SET_OVERRIDES}")
+          fi
+
+          helm template "${ARGS[@]}"
