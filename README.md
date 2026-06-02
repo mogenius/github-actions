@@ -115,3 +115,47 @@ build:
     build_secrets: |
       MY_SECRET=${{ secrets.MY_SECRET }}
 ```
+
+---
+
+### `gitops-deploy.yml` — GitOps Deploy
+
+Updates an image tag in a GitOps repository (e.g. an ArgoCD application YAML) and commits the change. Matches the tag line using a [Renovate](https://docs.renovatebot.com/) `datasource=docker depName=` annotation comment. Supports GitHub App auth or a PAT.
+
+#### Secrets
+
+| Name | Description |
+|------|-------------|
+| `APP_ID` | GitHub App client ID (use with `APP_PRIVATE_KEY`) |
+| `APP_PRIVATE_KEY` | GitHub App private key |
+| `RELEASE_TOKEN` | PAT alternative to App auth |
+
+Either `RELEASE_TOKEN` or both App secrets must be set. The app or PAT must have write access to the gitops repository.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `version` | yes | — | Version tag to deploy |
+| `repository` | yes | — | GitOps repository to update (e.g. `org/repo`) |
+| `file` | yes | — | Path to the application YAML file within the repository |
+| `package` | yes | — | Full image name matching the `depName=` annotation (e.g. `ghcr.io/myorg/myimage`) |
+| `ref` | no | `'main'` | Branch to checkout and push to |
+| `runner` | no | `'self-hosted'` | Runner label for the deploy job |
+
+#### Example
+
+```yaml
+deploy:
+  if: needs.prepare.outputs.is_release == 'true'
+  needs: [prepare, build]
+  uses: mogenius/github-actions/.github/workflows/gitops-deploy.yml@<sha> # main
+  secrets:
+    APP_ID: ${{ secrets.GITOPS_APP_ID }}
+    APP_PRIVATE_KEY: ${{ secrets.GITOPS_APP_PRIVATE_KEY }}
+  with:
+    version: ${{ needs.prepare.outputs.version }}
+    repository: myorg/my-argocd-applications
+    file: dev/my-service/application.yaml
+    package: ghcr.io/myorg/my-service
+```
