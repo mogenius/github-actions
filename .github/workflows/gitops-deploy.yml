@@ -1,0 +1,125 @@
+name: GitOps Deploy
+
+on:
+  workflow_call:
+    secrets:
+      APP_ID:
+        description: 'GitHub App client ID (use with APP_PRIVATE_KEY)'
+        required: false
+      APP_PRIVATE_KEY:
+        description: 'GitHub App private key'
+        required: false
+      RELEASE_TOKEN:
+        description: 'PAT fallback when not using a GitHub App'
+        required: false
+    inputs:
+      version:
+        description: 'Version tag to deploy'
+        required: true
+        type: string
+      repository:
+        description: 'GitOps repository (e.g. org/repo)'
+        required: true
+        type: string
+      ref:
+        description: 'Branch to checkout and push to'
+        required: false
+        default: 'main'
+        type: string
+      file:
+        description: 'Path to the application YAML file within the repository'
+        required: true
+        type: string
+      package:
+        description: 'Package name used in the renovate depName comment (e.g. ghcr.io/myorg/myimage)'
+        required: true
+        type: string
+      runner:
+        description: 'Runner label for the deploy job'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Validate auth configuration
+        id: auth-check
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -n "${APP_ID}" ] && [ -n "${APP_PRIVATE_KEY}" ]; then
+            echo "use_app_auth=true" >> $GITHUB_OUTPUT
+          elif [ -n "${RELEASE_TOKEN}" ]; then
+            echo "use_app_auth=false" >> $GITHUB_OUTPUT
+          else
+            echo "::error::Either RELEASE_TOKEN or both APP_ID and APP_PRIVATE_KEY must be set"
+            exit 1
+          fi
+
+      - name: Generate app token
+        id: generate-token
+        if: steps.auth-check.outputs.use_app_auth == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: ${{ inputs.repository }}
+
+      - name: Checkout gitops repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ inputs.repository }}
+          token: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
+          ref: ${{ inputs.ref }}
+
+      - name: Update image tag
+        env:
+          VERSION: ${{ inputs.version }}
+          FILE: ${{ inputs.file }}
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          echo "::group::Configuration"
+          echo "Repository : ${{ inputs.repository }}"
+          echo "Branch     : ${{ inputs.ref }}"
+          echo "File       : ${FILE}"
+          echo "Package    : ${PACKAGE}"
+          echo "Version    : ${VERSION}"
+          echo "::endgroup::"
+
+          echo "::group::Current file state"
+          grep -n "depName=${PACKAGE}" "${FILE}" || echo "Warning: no matching depName annotation found in ${FILE}"
+          echo "::endgroup::"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          sed -i -E "s/^([[:space:]]*)tag:[[:space:]]*.*(# datasource=docker depName=${PACKAGE})/\1tag: ${VERSION} \2/" "${FILE}"
+
+          echo "::group::Updated file state"
+          grep -n "depName=${PACKAGE}" "${FILE}"
+          echo "::endgroup::"
+
+          git add "${FILE}"
+          if git diff --cached --quiet; then
+            echo "::notice::Tag already up to date, nothing to commit"
+          else
+            echo "::group::Diff"
+            git diff --cached
+            echo "::endgroup::"
+            git commit -m "chore(deps): update ${PACKAGE##*/} to ${VERSION} [skip ci]"
+            git push origin HEAD
+            echo "::notice::Deployed ${PACKAGE##*/} ${VERSION} to ${{ inputs.repository }}@${{ inputs.ref }}"
+          fi
+
+          echo "## GitOps Deploy" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${{ inputs.repository }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ inputs.ref }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| File | ${FILE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Package | ${PACKAGE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${VERSION} |" >> $GITHUB_STEP_SUMMARY
