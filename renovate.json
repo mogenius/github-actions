@@ -3,23 +3,10 @@
   "extends": [
     "config:recommended"
   ],
-  "enabledManagers": ["github-actions", "gomod", "helm-values", "helmv3"],
-  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
-  "automerge": true,
-  "automergeType": "pr",
+  "platformAutomerge": true,
   "patch": {
     "automerge": true
   },
   "prCreation": "not-pending",
-  "packageRules": [
-    {
-      "matchPackageNames": [
-        "ghcr.io/mogenius/mogenius-operator"
-      ],
-      "matchFileNames": [
-        "helm/**"
-      ],
-      "enabled": false
-    }
-  ]
+  "semanticCommitScope": "fix"
 }
