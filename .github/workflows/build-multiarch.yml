@@ -51,6 +51,11 @@ on:
         required: false
         default: ''
         type: string
+      build_secrets:
+        description: 'Docker build secrets (multiline id=value). Passed to all arch builds.'
+        required: false
+        default: ''
+        type: string
       push_latest:
         description: 'Push a :latest tag when building from the main branch'
         required: false
@@ -126,6 +131,7 @@ jobs:
             VERSION=${{ inputs.version }}
             ${{ inputs.build_args }}
             ${{ inputs.build_args_amd64 }}
+          secrets: ${{ inputs.build_secrets }}
 
   build-arm64:
     if: contains(inputs.architectures, 'arm64')
@@ -172,6 +178,7 @@ jobs:
             VERSION=${{ inputs.version }}
             ${{ inputs.build_args }}
             ${{ inputs.build_args_arm64 }}
+          secrets: ${{ inputs.build_secrets }}
 
   build-armv7:
     # Cross-compile on amd64 — much faster than QEMU emulation on a native armv7 runner
@@ -222,6 +229,7 @@ jobs:
             VERSION=${{ inputs.version }}
             ${{ inputs.build_args }}
             ${{ inputs.build_args_armv7 }}
+          secrets: ${{ inputs.build_secrets }}
 
   # ============================================================================
   # Create multi-arch manifest combining all successfully built arch images
