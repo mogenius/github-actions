@@ -97,7 +97,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          sed -i -E "s/^([[:space:]]*)tag:[[:space:]]*.*(# datasource=docker depName=${PACKAGE})/\1tag: ${VERSION} \2/" "${FILE}"
+          sed -i -E "s|^([[:space:]]*)tag:[[:space:]]*.*(# datasource=docker depName=${PACKAGE})|\1tag: ${VERSION} \2|" "${FILE}"
 
           echo "::group::Updated file state"
           grep -n "depName=${PACKAGE}" "${FILE}"
