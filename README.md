@@ -81,7 +81,8 @@ Builds a Docker image natively on amd64 and arm64 runners, cross-compiles armv7 
 | `build_args_amd64` | no | `''` | Extra build args for the amd64 job only |
 | `build_args_arm64` | no | `''` | Extra build args for the arm64 job only |
 | `build_args_armv7` | no | `''` | Extra build args for the armv7 job only |
-| `build_secrets` | no | `''` | Docker build secrets (multiline `id=value`) passed to all arch builds |
+| `build_secrets` | no | `''` | Docker build secrets as literal `id=value` pairs — values cannot be secret references |
+| `build_secret_envs` | no | `''` | Mount env vars as docker build secrets (multiline `id=envname`). Use this for secrets — `GITHUB_TOKEN` is always available, others require `secrets: inherit` |
 | `push_latest` | no | `true` | Push a `:latest` tag alongside the version tag |
 | `runner_amd64` | no | `arc-runner-set-amd64` | Runner label for amd64 native builds |
 | `runner_arm64` | no | `arc-runner-set-arm64` | Runner label for arm64 native builds |
@@ -112,8 +113,9 @@ build:
       BASE_IMAGE=ghcr.io/myorg/base:latest-arm64
     build_args_armv7: |
       BASE_IMAGE=ghcr.io/myorg/base:latest-armv7
-    build_secrets: |
-      MY_SECRET=${{ secrets.MY_SECRET }}
+    build_secret_envs: |
+      GITHUB_NPM_TOKEN=GITHUB_TOKEN
+      MY_SECRET=MY_SECRET
 ```
 
 ---

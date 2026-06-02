@@ -56,6 +56,11 @@ on:
         required: false
         default: ''
         type: string
+      build_secret_envs:
+        description: 'Env var names to mount as docker build secrets (multiline id=envname, e.g. GITHUB_NPM_TOKEN=GITHUB_TOKEN).'
+        required: false
+        default: ''
+        type: string
       push_latest:
         description: 'Push a :latest tag when building from the main branch'
         required: false
@@ -132,6 +137,7 @@ jobs:
             ${{ inputs.build_args }}
             ${{ inputs.build_args_amd64 }}
           secrets: ${{ inputs.build_secrets }}
+          secret-envs: ${{ inputs.build_secret_envs }}
 
   build-arm64:
     if: contains(inputs.architectures, 'arm64')
@@ -179,6 +185,7 @@ jobs:
             ${{ inputs.build_args }}
             ${{ inputs.build_args_arm64 }}
           secrets: ${{ inputs.build_secrets }}
+          secret-envs: ${{ inputs.build_secret_envs }}
 
   build-armv7:
     # Cross-compile on amd64 — much faster than QEMU emulation on a native armv7 runner
@@ -230,6 +237,7 @@ jobs:
             ${{ inputs.build_args }}
             ${{ inputs.build_args_armv7 }}
           secrets: ${{ inputs.build_secrets }}
+          secret-envs: ${{ inputs.build_secret_envs }}
 
   # ============================================================================
   # Create multi-arch manifest combining all successfully built arch images
