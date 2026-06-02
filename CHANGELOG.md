@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/mogenius/github-actions/compare/v1.0.0...v1.1.0) (2026-06-02)
+
+
+### Bug Fixes
+
+* improve renovate config ([372b134](https://github.com/mogenius/github-actions/commit/372b1343d975cfeb060050144b46aa97c582f532))
+
+
+### Features
+
+* adding helm reusable actions ([117e5c4](https://github.com/mogenius/github-actions/commit/117e5c459cce769d2b2be7ee33630f25b2b9b02f))
+
 # 1.0.0 (2026-06-02)
 
 
