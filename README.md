@@ -86,6 +86,7 @@ Builds a Docker image natively on amd64 and arm64 runners, cross-compiles armv7 
 | `push_latest` | no | `true` | Push a `:latest` tag alongside the version tag |
 | `runner_amd64` | no | `arc-runner-set-amd64` | Runner label for amd64 native builds |
 | `runner_arm64` | no | `arc-runner-set-arm64` | Runner label for arm64 native builds |
+| `runner_armv7` | no | `self-hosted` | Runner label for armv7 builds |
 
 #### Outputs
 
