@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/mogenius/github-actions/compare/v1.1.0...v1.1.1) (2026-06-03)
+
+
+### Bug Fixes
+
+* adding default container labels to multi arch build ([08ee50a](https://github.com/mogenius/github-actions/commit/08ee50aae4fa93a382adf5689205d3e259c5da13))
+
 # [1.1.0](https://github.com/mogenius/github-actions/compare/v1.0.0...v1.1.0) (2026-06-02)
 
 
