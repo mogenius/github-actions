@@ -162,3 +162,85 @@ deploy:
     file: dev/my-service/application.yaml
     package: ghcr.io/myorg/my-service
 ```
+
+---
+
+### `helm-lint.yml` — Helm Lint
+
+Runs `helm lint` against a chart directory.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | yes | — | Path to the Helm chart directory |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+lint:
+  uses: mogenius/github-actions/.github/workflows/helm-lint.yml@<sha> # main
+  with:
+    path: ./charts/my-service
+```
+
+---
+
+### `helm-template.yml` — Helm Template
+
+Renders a chart with `helm template` to validate manifests without a cluster. Supports inline values and `--set` overrides.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | yes | — | Path to the Helm chart directory |
+| `values` | no | `''` | Inline values YAML passed via `-f` (written to a temp file) |
+| `set` | no | `''` | Additional `--set` overrides, one `key=value` per line |
+| `release_name` | no | `'release'` | Helm release name used during templating |
+| `namespace` | no | `'default'` | Kubernetes namespace used during templating |
+| `update_dependencies` | no | `false` | Run `helm dependency update` before templating |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+template:
+  uses: mogenius/github-actions/.github/workflows/helm-template.yml@<sha> # main
+  with:
+    path: ./charts/my-service
+    values: |
+      replicaCount: 2
+      image:
+        tag: latest
+    set: |
+      ingress.enabled=true
+```
+
+---
+
+### `helm-unittest.yml` — Helm Unit Tests
+
+Runs [helm-unittest](https://github.com/helm-unittest/helm-unittest) against a chart directory.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | yes | — | Path to the Helm chart directory |
+| `test_files` | no | `'unittests/**/*.yaml'` | Glob pattern for test files relative to the chart directory |
+| `strict` | no | `true` | Run helm-unittest with `--strict` flag |
+| `helm_unittest_version` | no | `'v1.1.0'` | Version of the helm-unittest plugin to install |
+| `update_dependencies` | no | `false` | Run `helm dependency update` before running tests |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+unittest:
+  uses: mogenius/github-actions/.github/workflows/helm-unittest.yml@<sha> # main
+  with:
+    path: ./charts/my-service
+    test_files: 'tests/**/*.yaml'
+```
