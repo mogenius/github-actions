@@ -136,6 +136,12 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: ${{ inputs.image }}:${{ inputs.version }}-amd64
+          labels: |
+            org.opencontainers.image.created=${{ steps.meta.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.ref.name=${{ steps.meta.outputs.git_branch }}
           build-args: |
             COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
             GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
@@ -186,6 +192,12 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ${{ inputs.image }}:${{ inputs.version }}-arm64
+          labels: |
+            org.opencontainers.image.created=${{ steps.meta.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.ref.name=${{ steps.meta.outputs.git_branch }}
           build-args: |
             COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
             GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
@@ -239,6 +251,12 @@ jobs:
           platforms: linux/arm/v7
           push: true
           tags: ${{ inputs.image }}:${{ inputs.version }}-armv7
+          labels: |
+            org.opencontainers.image.created=${{ steps.meta.outputs.build_timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ inputs.version }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.ref.name=${{ steps.meta.outputs.git_branch }}
           build-args: |
             COMMIT_HASH=${{ steps.meta.outputs.commit_hash }}
             GIT_BRANCH=${{ steps.meta.outputs.git_branch }}
