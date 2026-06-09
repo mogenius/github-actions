@@ -20,7 +20,7 @@ on:
       helm_unittest_version:
         description: 'Version of the helm-unittest plugin to install'
         required: false
-        default: 'v1.1.0' # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
+        default: 'v1.1.1' # renovate: datasource=github-releases depName=helm-unittest/helm-unittest
         type: string
       update_dependencies:
         description: 'Run helm dependency update before running tests'
