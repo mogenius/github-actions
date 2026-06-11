@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/mogenius/github-actions/compare/v1.1.1...v1.1.2) (2026-06-11)
+
+
+### Bug Fixes
+
+* improve qemu install action ([c4f7989](https://github.com/mogenius/github-actions/commit/c4f7989e52dba7adb4c8419a4dcb48102b037d2e))
+
 ## [1.1.1](https://github.com/mogenius/github-actions/compare/v1.1.0...v1.1.1) (2026-06-03)
 
 
