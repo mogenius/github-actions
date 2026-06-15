@@ -165,6 +165,43 @@ deploy:
 
 ---
 
+### `automerge-approved.yml` — Automerge
+
+Scans all open PRs in the repository and merges those carrying a configurable label (default: `automerge-approved`). Only PRs in a `CLEAN` merge state (all checks passed, no conflicts) are merged; others are reported as skipped. Supports GitHub App auth, a PAT, or the default `GITHUB_TOKEN`.
+
+#### Secrets
+
+| Name | Description |
+|------|-------------|
+| `APP_ID` | GitHub App client ID (use with `APP_PRIVATE_KEY`) |
+| `APP_PRIVATE_KEY` | GitHub App private key |
+| `RELEASE_TOKEN` | PAT alternative to App auth |
+
+All secrets are optional. When none are provided the job uses the default `GITHUB_TOKEN`.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `label` | no | `'automerge-approved'` | Label that marks PRs eligible for merging |
+| `merge_method` | no | `'squash'` | Merge method: `merge`, `squash`, or `rebase` |
+| `delete_branch` | no | `true` | Delete the head branch after a successful merge |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+automerge:
+  uses: mogenius/github-actions/.github/workflows/automerge-approved.yml@<sha> # main
+  secrets:
+    APP_ID: ${{ secrets.RELEASE_APP_ID }}
+    APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_SECRET }}
+  with:
+    merge_method: squash
+```
+
+---
+
 ### `go-build.yml` — Go Build
 
 Compiles all packages in a Go module with `go build ./...`.

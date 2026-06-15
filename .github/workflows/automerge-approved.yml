@@ -1,0 +1,122 @@
+name: Automerge
+
+on:
+  workflow_call:
+    secrets:
+      RELEASE_TOKEN:
+        required: false
+      APP_ID:
+        required: false
+      APP_PRIVATE_KEY:
+        required: false
+    inputs:
+      label:
+        description: 'Label that marks PRs eligible for automerge'
+        required: false
+        default: 'automerge-approved'
+        type: string
+      merge_method:
+        description: 'Merge method to use: merge, squash, or rebase'
+        required: false
+        default: 'rebase'
+        type: string
+      delete_branch:
+        description: 'Delete the head branch after merging'
+        required: false
+        default: true
+        type: boolean
+      runner:
+        description: 'Runner to use for the job'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  automerge:
+    runs-on: ${{ inputs.runner }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check auth configuration
+        id: auth-check
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          if [ -n "${APP_ID}" ] && [ -n "${APP_PRIVATE_KEY}" ]; then
+            echo "use_app_auth=true" >> $GITHUB_OUTPUT
+          else
+            echo "use_app_auth=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate a token
+        id: generate-token
+        if: steps.auth-check.outputs.use_app_auth == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Merge labelled PRs
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN || github.token }}
+          GH_REPO: ${{ github.repository }}
+          LABEL: ${{ inputs.label }}
+          MERGE_METHOD: ${{ inputs.merge_method }}
+          DELETE_BRANCH: ${{ inputs.delete_branch }}
+        run: |
+          PR_LIST=$(gh pr list \
+            --label "${LABEL}" \
+            --state open \
+            --json number,title,mergeable,mergeStateStatus)
+
+          PR_COUNT=$(echo "${PR_LIST}" | jq 'length')
+
+          echo "## Automerge Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${PR_COUNT}" -eq 0 ]; then
+            echo "No open PRs found with label \`${LABEL}\`." >> $GITHUB_STEP_SUMMARY
+            echo "No PRs to merge."
+            exit 0
+          fi
+
+          echo "Found ${PR_COUNT} PR(s) with label \`${LABEL}\`." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | Title | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          MERGED=0
+          SKIPPED=0
+          FAILED=0
+
+          for NUMBER in $(echo "${PR_LIST}" | jq -r '.[].number'); do
+            TITLE=$(echo "${PR_LIST}" | jq -r ".[] | select(.number == ${NUMBER}) | .title")
+            MERGEABLE=$(echo "${PR_LIST}" | jq -r ".[] | select(.number == ${NUMBER}) | .mergeable")
+            STATE=$(echo "${PR_LIST}" | jq -r ".[] | select(.number == ${NUMBER}) | .mergeStateStatus")
+
+            MERGE_ARGS=("${NUMBER}" "--${MERGE_METHOD}")
+            [ "${DELETE_BRANCH}" == "true" ] && MERGE_ARGS+=(--delete-branch)
+
+            if [ "${MERGEABLE}" == "MERGEABLE" ] && [ "${STATE}" == "CLEAN" ]; then
+              if gh pr merge "${MERGE_ARGS[@]}"; then
+                echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Merged |" >> $GITHUB_STEP_SUMMARY
+                MERGED=$((MERGED + 1))
+              else
+                echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Failed |" >> $GITHUB_STEP_SUMMARY
+                FAILED=$((FAILED + 1))
+              fi
+            else
+              echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Skipped (${STATE}) |" >> $GITHUB_STEP_SUMMARY
+              SKIPPED=$((SKIPPED + 1))
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Merged:** ${MERGED} | **Skipped:** ${SKIPPED} | **Failed:** ${FAILED}" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${FAILED}" -gt 0 ]; then
+            echo "::warning::${FAILED} PR(s) failed to merge."
+          fi
