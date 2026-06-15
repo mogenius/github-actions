@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/mogenius/github-actions/compare/v1.2.0...v1.3.0) (2026-06-15)
+
+
+### Features
+
+* adding action to automerged approved merge requests ([9779b0e](https://github.com/mogenius/github-actions/commit/9779b0e434607b652537d87338aea15585f93a84))
+
 # [1.2.0](https://github.com/mogenius/github-actions/compare/v1.1.2...v1.2.0) (2026-06-15)
 
 
