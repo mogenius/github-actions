@@ -1,0 +1,63 @@
+name: Go Test
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Working directory (path to module root)'
+        required: false
+        default: '.'
+        type: string
+      go_version:
+        description: 'Go version to use'
+        required: false
+        default: 'stable'
+        type: string
+      race:
+        description: 'Enable race detector (-race)'
+        required: false
+        default: false
+        type: boolean
+      run:
+        description: 'Test filter passed to -run'
+        required: false
+        default: ''
+        type: string
+      args:
+        description: 'Extra arguments passed to go test'
+        required: false
+        default: ''
+        type: string
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  go-test:
+    runs-on: ${{ inputs.runner }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: ${{ inputs.go_version }}
+          cache-dependency-path: ${{ inputs.path }}/go.sum
+
+      - name: Test
+        env:
+          RACE: ${{ inputs.race }}
+          RUN_FILTER: ${{ inputs.run }}
+          EXTRA_ARGS: ${{ inputs.args }}
+        run: |
+          ARGS=()
+          [ "${RACE}" == "true" ] && ARGS+=(-race)
+          [ -n "${RUN_FILTER}" ] && ARGS+=(-run "${RUN_FILTER}")
+          [ -n "${EXTRA_ARGS}" ] && ARGS+=(${EXTRA_ARGS})
+          go test "${ARGS[@]}" ./...

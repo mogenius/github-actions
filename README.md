@@ -165,6 +165,85 @@ deploy:
 
 ---
 
+### `go-build.yml` — Go Build
+
+Compiles all packages in a Go module with `go build ./...`.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | no | `'.'` | Working directory (path to module root) |
+| `go_version` | no | `'stable'` | Go version to use |
+| `output` | no | `''` | Output binary path passed to `-o` (omit to skip) |
+| `ldflags` | no | `''` | Linker flags passed to `-ldflags` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+build:
+  uses: mogenius/github-actions/.github/workflows/go-build.yml@<sha> # main
+  with:
+    go_version: '1.24.x'
+    ldflags: '-X main.version=${{ needs.prepare.outputs.version }}'
+```
+
+---
+
+### `go-test.yml` — Go Test
+
+Runs `go test ./...` with optional race detector and test filtering.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | no | `'.'` | Working directory (path to module root) |
+| `go_version` | no | `'stable'` | Go version to use |
+| `race` | no | `false` | Enable race detector (`-race`) |
+| `run` | no | `''` | Test filter passed to `-run` |
+| `args` | no | `''` | Extra arguments passed to `go test` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+test:
+  uses: mogenius/github-actions/.github/workflows/go-test.yml@<sha> # main
+  with:
+    go_version: '1.24.x'
+    race: true
+```
+
+---
+
+### `golangci-lint.yml` — golangci-lint
+
+Runs [golangci-lint](https://golangci-lint.run/) via the official action. Respects a `.golangci.yml` config in the repository if present.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | no | `'.'` | Working directory (path to module root) |
+| `go_version` | no | `'stable'` | Go version to use |
+| `golangci_lint_version` | no | `'v1.64.8'` | golangci-lint version (Renovate-tracked) |
+| `args` | no | `''` | Extra arguments passed to `golangci-lint run` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+lint:
+  uses: mogenius/github-actions/.github/workflows/golangci-lint.yml@<sha> # main
+  with:
+    go_version: '1.24.x'
+    args: '--timeout 5m'
+```
+
+---
+
 ### `helm-lint.yml` — Helm Lint
 
 Runs `helm lint` against a chart directory.
