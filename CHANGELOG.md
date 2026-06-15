@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/mogenius/github-actions/compare/v1.1.2...v1.2.0) (2026-06-15)
+
+
+### Features
+
+* adding predefined go actions ([21ac54d](https://github.com/mogenius/github-actions/commit/21ac54dfcae2e5285608b2cc3bbd878253ba347a))
+
 ## [1.1.2](https://github.com/mogenius/github-actions/compare/v1.1.1...v1.1.2) (2026-06-11)
 
 
