@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/mogenius/github-actions/compare/v1.3.0...v1.3.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* set github npm token for semantic release ([085bf1d](https://github.com/mogenius/github-actions/commit/085bf1d44d2206d1dbdf3181c4f46ac672e81b60))
+
 # [1.3.0](https://github.com/mogenius/github-actions/compare/v1.2.0...v1.3.0) (2026-06-15)
 
 
