@@ -117,10 +117,9 @@ jobs:
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
+          GITHUB_NPM_TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
 
       - name: Get version info
         id: version
