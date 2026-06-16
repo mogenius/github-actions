@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/mogenius/github-actions/compare/v1.3.1...v1.3.2) (2026-06-16)
+
+
+### Bug Fixes
+
+* set repository for token creation ([4242318](https://github.com/mogenius/github-actions/commit/424231845c685e2f70514dcfa338ad87cbe9c450))
+
 ## [1.3.1](https://github.com/mogenius/github-actions/compare/v1.3.0...v1.3.1) (2026-06-16)
 
 
