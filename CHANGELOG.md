@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/mogenius/github-actions/compare/v1.4.2...v1.4.3) (2026-06-18)
+
+
+### Bug Fixes
+
+* **deps:** update actions/checkout action to v6.0.3 ([#9](https://github.com/mogenius/github-actions/issues/9)) ([9078036](https://github.com/mogenius/github-actions/commit/90780368bce99f0841bbae4fcb08561bf49a967d))
+
 ## [1.4.2](https://github.com/mogenius/github-actions/compare/v1.4.1...v1.4.2) (2026-06-18)
 
 
