@@ -8,5 +8,12 @@
     "automerge": true
   },
   "prCreation": "not-pending",
-  "semanticCommitType": "fix"
+  "packageRules": [
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "semanticCommitType": "fix"
+    }
+  ]
 }
