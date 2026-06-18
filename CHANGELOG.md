@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/mogenius/github-actions/compare/v1.3.2...v1.4.0) (2026-06-18)
+
+
+### Features
+
+* adding image signing as an option for renovate ([389c7e0](https://github.com/mogenius/github-actions/commit/389c7e06d25631f4c8362078829b1eaa713f237f))
+
 ## [1.3.2](https://github.com/mogenius/github-actions/compare/v1.3.1...v1.3.2) (2026-06-16)
 
 
