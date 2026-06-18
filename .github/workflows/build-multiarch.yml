@@ -327,7 +327,9 @@ jobs:
           IMAGE: ${{ inputs.image }}
           VERSION: ${{ inputs.version }}
         run: |
-          cosign sign --yes --recursive "${IMAGE}:${VERSION}"
+          DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}" | grep -m1 "^Digest:" | awk '{print $2}')
+          cosign sign --yes --recursive "${IMAGE}@${DIGEST}"
           if [ "${{ inputs.push_latest }}" == "true" ]; then
-            cosign sign --yes --recursive "${IMAGE}:latest"
+            DIGEST_LATEST=$(docker buildx imagetools inspect "${IMAGE}:latest" | grep -m1 "^Digest:" | awk '{print $2}')
+            cosign sign --yes --recursive "${IMAGE}@${DIGEST_LATEST}"
           fi
