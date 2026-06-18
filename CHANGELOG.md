@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/mogenius/github-actions/compare/v1.4.0...v1.4.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* sign images using its digest ([888602d](https://github.com/mogenius/github-actions/commit/888602dc62120951638fd861f3ada7685659ed94))
+
 # [1.4.0](https://github.com/mogenius/github-actions/compare/v1.3.2...v1.4.0) (2026-06-18)
 
 
