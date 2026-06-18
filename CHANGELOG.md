@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/mogenius/github-actions/compare/v1.4.1...v1.4.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* update sigstore/cosign-installer to v4 ([6638925](https://github.com/mogenius/github-actions/commit/6638925b9ca787165ec0af2d0cdca415c85e43ce))
+
 ## [1.4.1](https://github.com/mogenius/github-actions/compare/v1.4.0...v1.4.1) (2026-06-18)
 
 
