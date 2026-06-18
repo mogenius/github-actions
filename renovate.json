@@ -8,5 +8,5 @@
     "automerge": true
   },
   "prCreation": "not-pending",
-  "semanticCommitScope": "fix"
+  "semanticCommitType": "fix"
 }
