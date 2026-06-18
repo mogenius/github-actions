@@ -16,7 +16,7 @@ on:
       golangci_lint_version:
         description: 'golangci-lint version'
         required: false
-        default: 'v1.64.8' # renovate: datasource=github-releases depName=golangci/golangci-lint
+        default: 'v2.12.2' # renovate: datasource=github-releases depName=golangci/golangci-lint
         type: string
       args:
         description: 'Extra arguments passed to golangci-lint run'
