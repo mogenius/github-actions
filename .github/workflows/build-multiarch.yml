@@ -66,6 +66,11 @@ on:
         required: false
         default: true
         type: boolean
+      sign_image:
+        description: 'Sign the final manifest image keyless using cosign (requires id-token: write permission in the caller workflow)'
+        required: false
+        default: false
+        type: boolean
       runner_amd64:
         description: 'Runner label for amd64 native builds'
         required: false
@@ -280,6 +285,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
@@ -309,4 +315,19 @@ jobs:
 
           if [ "${{ inputs.push_latest }}" == "true" ]; then
             docker buildx imagetools create -t "${IMAGE}:latest" ${IMAGES}
+          fi
+
+      - name: Install cosign
+        if: inputs.sign_image
+        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+
+      - name: Sign image
+        if: inputs.sign_image
+        env:
+          IMAGE: ${{ inputs.image }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          cosign sign --yes --recursive "${IMAGE}:${VERSION}"
+          if [ "${{ inputs.push_latest }}" == "true" ]; then
+            cosign sign --yes --recursive "${IMAGE}:latest"
           fi
