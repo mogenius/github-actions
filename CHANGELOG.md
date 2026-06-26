@@ -1,3 +1,10 @@
+## [1.4.4](https://github.com/mogenius/github-actions/compare/v1.4.3...v1.4.4) (2026-06-26)
+
+
+### Bug Fixes
+
+* **deps:** update azure/setup-helm action to v5.0.1 ([#13](https://github.com/mogenius/github-actions/issues/13)) ([2cf4595](https://github.com/mogenius/github-actions/commit/2cf459561526a1ca6d6f02bdf24c66258153aa22))
+
 ## [1.4.3](https://github.com/mogenius/github-actions/compare/v1.4.2...v1.4.3) (2026-06-18)
 
 
