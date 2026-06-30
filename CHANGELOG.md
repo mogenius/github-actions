@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/mogenius/github-actions/compare/v1.5.0...v1.6.0) (2026-06-30)
+
+
+### Features
+
+* switch sbom to default to true ([bcf29d5](https://github.com/mogenius/github-actions/commit/bcf29d5ace72e4b1d66fcf35a69f5d5f35b976b9))
+
 # [1.5.0](https://github.com/mogenius/github-actions/compare/v1.4.4...v1.5.0) (2026-06-30)
 
 
