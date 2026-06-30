@@ -69,12 +69,12 @@ on:
       sbom:
         description: 'Generate and attach an SBOM attestation to each arch image'
         required: false
-        default: false
+        default: true
         type: boolean
       provenance:
         description: 'Provenance attestation mode passed to docker/build-push-action (e.g. mode=min, mode=max, false). Empty string uses the action default (mode=min).'
         required: false
-        default: ''
+        default: 'mode=max'
         type: string
       sign_image:
         description: 'Sign the final manifest image keyless using cosign (requires id-token: write permission in the caller workflow)'
