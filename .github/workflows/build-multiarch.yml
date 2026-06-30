@@ -79,7 +79,7 @@ on:
       sign_image:
         description: 'Sign the final manifest image keyless using cosign (requires id-token: write permission in the caller workflow)'
         required: false
-        default: false
+        default: true
         type: boolean
       runner_amd64:
         description: 'Runner label for amd64 native builds'
