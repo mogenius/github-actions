@@ -1,3 +1,11 @@
+# [1.5.0](https://github.com/mogenius/github-actions/compare/v1.4.4...v1.5.0) (2026-06-30)
+
+
+### Features
+
+* adding build inputs for sbom and provenance ([70130fa](https://github.com/mogenius/github-actions/commit/70130fa2b1007142f24c4cb9f9e0a1b9b29acb81))
+* enable image signing per default ([a1f465c](https://github.com/mogenius/github-actions/commit/a1f465c7958172976e7a34e05df1dcf81f7c1125))
+
 ## [1.4.4](https://github.com/mogenius/github-actions/compare/v1.4.3...v1.4.4) (2026-06-26)
 
 
