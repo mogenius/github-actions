@@ -66,6 +66,16 @@ on:
         required: false
         default: true
         type: boolean
+      sbom:
+        description: 'Generate and attach an SBOM attestation to each arch image'
+        required: false
+        default: false
+        type: boolean
+      provenance:
+        description: 'Provenance attestation mode passed to docker/build-push-action (e.g. mode=min, mode=max, false). Empty string uses the action default (mode=min).'
+        required: false
+        default: ''
+        type: string
       sign_image:
         description: 'Sign the final manifest image keyless using cosign (requires id-token: write permission in the caller workflow)'
         required: false
@@ -156,6 +166,8 @@ jobs:
             ${{ inputs.build_args_amd64 }}
           secrets: ${{ inputs.build_secrets }}
           secret-envs: ${{ inputs.build_secret_envs }}
+          sbom: ${{ inputs.sbom }}
+          provenance: ${{ inputs.provenance }}
 
   build-arm64:
     if: contains(inputs.architectures, 'arm64')
@@ -212,6 +224,8 @@ jobs:
             ${{ inputs.build_args_arm64 }}
           secrets: ${{ inputs.build_secrets }}
           secret-envs: ${{ inputs.build_secret_envs }}
+          sbom: ${{ inputs.sbom }}
+          provenance: ${{ inputs.provenance }}
 
   build-armv7:
     if: contains(inputs.architectures, 'armv7')
@@ -274,6 +288,8 @@ jobs:
             ${{ inputs.build_args_armv7 }}
           secrets: ${{ inputs.build_secrets }}
           secret-envs: ${{ inputs.build_secret_envs }}
+          sbom: ${{ inputs.sbom }}
+          provenance: ${{ inputs.provenance }}
 
   # ============================================================================
   # Create multi-arch manifest combining all successfully built arch images
