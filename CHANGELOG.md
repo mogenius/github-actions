@@ -1,3 +1,16 @@
+## [1.6.1](https://github.com/mogenius/github-actions/compare/v1.6.0...v1.6.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update actions/checkout action to v7 ([ae30452](https://github.com/mogenius/github-actions/commit/ae30452e49c70bcd81078d5c0821adb9ad4d89d3))
+* **deps:** update actions/setup-go action to v6.5.0 ([f888cad](https://github.com/mogenius/github-actions/commit/f888cad5d0176185c2db04ed26517969d6cc68a2))
+* **deps:** update docker/build-push-action action to v7.3.0 ([d3353ee](https://github.com/mogenius/github-actions/commit/d3353eefa520fe561884045749a61f427763f9c5))
+* **deps:** update docker/login-action action to v4.4.0 ([32db021](https://github.com/mogenius/github-actions/commit/32db021fc7b4d7a186232de8061e6a298ab3416f))
+* **deps:** update docker/setup-buildx-action action to v4.2.0 ([dfba123](https://github.com/mogenius/github-actions/commit/dfba12343888b1b20c8f088294ba007210c31255))
+* **deps:** update docker/setup-qemu-action action to v4.2.0 ([8745da2](https://github.com/mogenius/github-actions/commit/8745da27470335a2ff0422292e24e3aed14a724d))
+* **deps:** update golangci/golangci-lint-action action to v9.3.0 ([651acfc](https://github.com/mogenius/github-actions/commit/651acfcf3b45ecbe39966b73dd017b9fc2ba4d3d))
+
 # [1.6.0](https://github.com/mogenius/github-actions/compare/v1.5.0...v1.6.0) (2026-06-30)
 
 
