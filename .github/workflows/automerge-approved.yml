@@ -88,6 +88,7 @@ jobs:
           MERGE_METHOD: ${{ inputs.merge_method }}
           DELETE_BRANCH: ${{ inputs.delete_branch }}
         run: |
+          echo "Fetching open PRs with label '${LABEL}'..."
           PR_LIST=$(gh pr list \
             --label "${LABEL}" \
             --state open \
@@ -99,11 +100,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           if [ "${PR_COUNT}" -eq 0 ]; then
+            echo "No open PRs found with label '${LABEL}'."
             echo "No open PRs found with label \`${LABEL}\`." >> $GITHUB_STEP_SUMMARY
-            echo "No PRs to merge."
             exit 0
           fi
 
+          echo "Found ${PR_COUNT} PR(s) with label '${LABEL}'."
           echo "Found ${PR_COUNT} PR(s) with label \`${LABEL}\`." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| PR | Title | Status |" >> $GITHUB_STEP_SUMMARY
@@ -118,23 +120,45 @@ jobs:
             MERGEABLE=$(echo "${PR_LIST}" | jq -r ".[] | select(.number == ${NUMBER}) | .mergeable")
             STATE=$(echo "${PR_LIST}" | jq -r ".[] | select(.number == ${NUMBER}) | .mergeStateStatus")
 
+            echo "---"
+            echo "PR #${NUMBER}: ${TITLE}"
+            echo "  mergeable=${MERGEABLE} state=${STATE}"
+
+            # GitHub may not have computed the merge state yet — retry up to 5 times
+            RETRIES=0
+            while [ "${STATE}" == "UNKNOWN" ] && [ "${RETRIES}" -lt 5 ]; do
+              RETRIES=$((RETRIES + 1))
+              echo "  State is UNKNOWN, retrying in 10s... (${RETRIES}/5)"
+              sleep 10
+              PR_DATA=$(gh pr view "${NUMBER}" --json mergeable,mergeStateStatus)
+              MERGEABLE=$(echo "${PR_DATA}" | jq -r '.mergeable')
+              STATE=$(echo "${PR_DATA}" | jq -r '.mergeStateStatus')
+              echo "  mergeable=${MERGEABLE} state=${STATE}"
+            done
+
             MERGE_ARGS=("${NUMBER}" "--${MERGE_METHOD}")
             [ "${DELETE_BRANCH}" == "true" ] && MERGE_ARGS+=(--delete-branch)
 
             if [ "${MERGEABLE}" == "MERGEABLE" ] && [ "${STATE}" == "CLEAN" ]; then
+              echo "  Merging with method '${MERGE_METHOD}'..."
               if gh pr merge "${MERGE_ARGS[@]}"; then
+                echo "  Merged successfully."
                 echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Merged |" >> $GITHUB_STEP_SUMMARY
                 MERGED=$((MERGED + 1))
               else
+                echo "  ::error::Failed to merge PR #${NUMBER}."
                 echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Failed |" >> $GITHUB_STEP_SUMMARY
                 FAILED=$((FAILED + 1))
               fi
             else
+              echo "  Skipping — not ready (mergeable=${MERGEABLE}, state=${STATE})."
               echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Skipped (${STATE}) |" >> $GITHUB_STEP_SUMMARY
               SKIPPED=$((SKIPPED + 1))
             fi
           done
 
+          echo "---"
+          echo "Done. Merged=${MERGED} Skipped=${SKIPPED} Failed=${FAILED}"
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Merged:** ${MERGED} | **Skipped:** ${SKIPPED} | **Failed:** ${FAILED}" >> $GITHUB_STEP_SUMMARY
 
