@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/mogenius/github-actions/compare/v1.6.1...v1.6.2) (2026-07-08)
+
+
+### Bug Fixes
+
+* install gh cli if it is not installed ([b13f430](https://github.com/mogenius/github-actions/commit/b13f430d5b889a3557dc8b8a0d0a9e671f91f749))
+
 ## [1.6.1](https://github.com/mogenius/github-actions/compare/v1.6.0...v1.6.1) (2026-07-06)
 
 
