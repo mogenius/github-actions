@@ -30,6 +30,11 @@ on:
         required: false
         default: 'self-hosted'
         type: string
+      gh_version:
+        description: 'GitHub CLI version to install (e.g. v2.72.0)'
+        required: false
+        default: 'v2.72.0' # renovate: datasource=github-releases depName=cli/cli
+        type: string
 
 jobs:
   automerge:
@@ -58,6 +63,22 @@ jobs:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
+
+      - name: Install GitHub CLI
+        env:
+          GH_VERSION: ${{ inputs.gh_version }}
+        run: |
+          ARCH=$(uname -m)
+          case "${ARCH}" in
+            x86_64)  ARCH=amd64 ;;
+            aarch64) ARCH=arm64 ;;
+            armv6l)  ARCH=armv6 ;;
+            *)       echo "Unsupported architecture: ${ARCH}"; exit 1 ;;
+          esac
+          VERSION="${GH_VERSION#v}"
+          curl -fsSL "https://github.com/cli/cli/releases/download/v${VERSION}/gh_${VERSION}_linux_${ARCH}.tar.gz" \
+            | tar -xz -C /tmp
+          echo "/tmp/gh_${VERSION}_linux_${ARCH}/bin" >> $GITHUB_PATH
 
       - name: Merge labelled PRs
         env:
