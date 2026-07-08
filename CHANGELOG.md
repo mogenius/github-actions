@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/mogenius/github-actions/compare/v1.6.2...v1.6.3) (2026-07-08)
+
+
+### Bug Fixes
+
+* adding more logging for automerge action ([e51e799](https://github.com/mogenius/github-actions/commit/e51e799e790dd26564c573c65121d71ab1c05eb0))
+
 ## [1.6.2](https://github.com/mogenius/github-actions/compare/v1.6.1...v1.6.2) (2026-07-08)
 
 
