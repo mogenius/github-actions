@@ -33,7 +33,7 @@ on:
       gh_version:
         description: 'GitHub CLI version to install (e.g. v2.72.0)'
         required: false
-        default: 'v2.72.0' # renovate: datasource=github-releases depName=cli/cli
+        default: 'v2.96.0' # renovate: datasource=github-releases depName=cli/cli
         type: string
 
 jobs:
