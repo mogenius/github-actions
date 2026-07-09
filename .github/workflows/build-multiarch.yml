@@ -89,7 +89,7 @@ on:
       runner_arm64:
         description: 'Runner label for arm64 native builds'
         required: false
-        default: 'arc-runner-set-arm64'
+        default: 'ubuntu-24.04-arm'
         type: string
       runner_armv7:
         description: 'Runner label for armv7 builds'
