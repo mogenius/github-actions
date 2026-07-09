@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/mogenius/github-actions/compare/v1.6.3...v1.7.0) (2026-07-09)
+
+
+### Features
+
+* use github arm64 runner for arm builds ([53164c0](https://github.com/mogenius/github-actions/commit/53164c06bb4229044bee9906d0d0bdf05bb5e6bf))
+
 ## [1.6.3](https://github.com/mogenius/github-actions/compare/v1.6.2...v1.6.3) (2026-07-08)
 
 
