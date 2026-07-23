@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/mogenius/github-actions/compare/v1.7.0...v1.7.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* **deps:** update actions/checkout action to v7.0.1 ([#25](https://github.com/mogenius/github-actions/issues/25)) ([e493d01](https://github.com/mogenius/github-actions/commit/e493d0104bf56538c3d6ff25bf18336ab965558c))
+
 # [1.7.0](https://github.com/mogenius/github-actions/compare/v1.6.3...v1.7.0) (2026-07-09)
 
 
