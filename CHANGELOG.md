@@ -1,3 +1,11 @@
+## [1.7.2](https://github.com/mogenius/github-actions/compare/v1.7.1...v1.7.2) (2026-07-24)
+
+
+### Bug Fixes
+
+* **deps:** update actions/setup-go action to v7 ([d8f57d4](https://github.com/mogenius/github-actions/commit/d8f57d49027fff2e59ac7b81ca580fb86f485779))
+* **deps:** update actions/setup-node action to v7 ([48457a6](https://github.com/mogenius/github-actions/commit/48457a69b884413364ccc1e6b141c386c7d6a80e))
+
 ## [1.7.1](https://github.com/mogenius/github-actions/compare/v1.7.0...v1.7.1) (2026-07-23)
 
 
