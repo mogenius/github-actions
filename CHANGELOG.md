@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/mogenius/github-actions/compare/v1.7.2...v1.7.3) (2026-07-28)
+
+
+### Bug Fixes
+
+* **deps:** update docker/login-action action to v4.5.1 ([aa0801c](https://github.com/mogenius/github-actions/commit/aa0801c71e0ad376046e0dd79993d1cdf7bff189))
+
 ## [1.7.2](https://github.com/mogenius/github-actions/compare/v1.7.1...v1.7.2) (2026-07-24)
 
 
