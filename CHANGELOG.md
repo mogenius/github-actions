@@ -1,3 +1,10 @@
+## [1.7.5](https://github.com/mogenius/github-actions/compare/v1.7.4...v1.7.5) (2026-08-20)
+
+
+### Bug Fixes
+
+* **go:** repair the Go build cache on ARC runners ([4390fe2](https://github.com/mogenius/github-actions/commit/4390fe24f8c3e649eb921ca35e1bc6b2db7e8aff))
+
 ## [1.7.4](https://github.com/mogenius/github-actions/compare/v1.7.3...v1.7.4) (2026-07-31)
 
 
