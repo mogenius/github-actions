@@ -44,11 +44,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # ARC runners start from a clean container, so $GOMODCACHE and $GOCACHE do not
+      # exist yet. actions/cache resolves its paths via glob and aborts the restore
+      # ("Some specified paths were not resolved") when they are missing, which
+      # silently disabled the Go cache on every run. Create them up front.
+      - name: Prepare Go cache dirs
+        run: mkdir -p ~/go/pkg/mod ~/.cache/go-build
+
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: ${{ inputs.go_version }}
-          cache-dependency-path: ${{ inputs.path }}/go.sum
+          cache: false
+
+      # Restored separately instead of via setup-go's `cache: true`: setup-go only
+      # looks up an exact go.sum hash and has no restore-keys fallback, so every
+      # dependency bump rebuilt the whole module graph from scratch.
+      - name: Restore Go build & module cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-${{ hashFiles(format('{0}/go.sum', inputs.path)) }}
+          restore-keys: |
+            go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-
+            go-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Test
         env:
