@@ -1,3 +1,11 @@
+## [1.7.7](https://github.com/mogenius/github-actions/compare/v1.7.6...v1.7.7) (2026-08-21)
+
+
+### Bug Fixes
+
+* **go:** fall back to the repo-root go.sum for the cache key ([6fa1f21](https://github.com/mogenius/github-actions/commit/6fa1f21b7f723008ae6ecd1577897a90133041ec))
+* **golangci-lint:** bump default to v2.13.1 for Go 1.27 support ([475dbab](https://github.com/mogenius/github-actions/commit/475dbabed6a41258905b9b1adf995dbefaca19cc))
+
 ## [1.7.6](https://github.com/mogenius/github-actions/compare/v1.7.5...v1.7.6) (2026-08-20)
 
 
