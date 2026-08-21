@@ -66,7 +66,12 @@ jobs:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-${{ hashFiles(format('{0}/go.sum', inputs.path)) }}
+          # `path` is the directory the tool runs in, which is not always the module
+          # root: a repo may keep go.mod at the top level and point the job at a
+          # subdirectory. hashFiles returns an empty string for a file that does not
+          # exist, which would collapse the key to a constant that never invalidates,
+          # so fall back to the repo-root go.sum.
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-${{ hashFiles(format('{0}/go.sum', inputs.path)) || hashFiles('go.sum') }}
           restore-keys: |
             go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-
             go-${{ runner.os }}-${{ runner.arch }}-
