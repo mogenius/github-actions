@@ -1,3 +1,10 @@
+## [1.7.8](https://github.com/mogenius/github-actions/compare/v1.7.7...v1.7.8) (2026-08-31)
+
+
+### Bug Fixes
+
+* **deps:** update docker/setup-buildx-action action to v4.3.0 ([fe40067](https://github.com/mogenius/github-actions/commit/fe40067e9394a7d558ee7c585b3c6647e0e8ed2a))
+
 ## [1.7.7](https://github.com/mogenius/github-actions/compare/v1.7.6...v1.7.7) (2026-08-21)
 
 
