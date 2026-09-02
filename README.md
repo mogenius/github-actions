@@ -184,9 +184,10 @@ All secrets are optional. When none are provided the job uses the default `GITHU
 | Name | Required | Default | Description |
 |------|----------|---------|-------------|
 | `label` | no | `'automerge-approved'` | Label that marks PRs eligible for merging |
-| `merge_method` | no | `'squash'` | Merge method: `merge`, `squash`, or `rebase` |
+| `merge_method` | no | `'rebase'` | Merge method: `merge`, `squash`, or `rebase` |
 | `delete_branch` | no | `true` | Delete the head branch after a successful merge |
 | `runner` | no | `'self-hosted'` | Runner label |
+| `gh_version` | no | `'v2.98.0'` | GitHub CLI version to install (Renovate-tracked) |
 
 #### Example
 
@@ -265,7 +266,7 @@ Runs [golangci-lint](https://golangci-lint.run/) via the official action. Respec
 |------|----------|---------|-------------|
 | `path` | no | `'.'` | Working directory (path to module root) |
 | `go_version` | no | `'stable'` | Go version to use |
-| `golangci_lint_version` | no | `'v1.64.8'` | golangci-lint version (Renovate-tracked) |
+| `golangci_lint_version` | no | `'v2.13.2'` | golangci-lint version (Renovate-tracked) |
 | `args` | no | `''` | Extra arguments passed to `golangci-lint run` |
 | `runner` | no | `'self-hosted'` | Runner label |
 
@@ -290,6 +291,7 @@ Runs `helm lint` against a chart directory.
 | Name | Required | Default | Description |
 |------|----------|---------|-------------|
 | `path` | yes | — | Path to the Helm chart directory |
+| `update_dependencies` | no | `false` | Run `helm dependency update` before linting |
 | `runner` | no | `'self-hosted'` | Runner label |
 
 #### Example
@@ -347,7 +349,7 @@ Runs [helm-unittest](https://github.com/helm-unittest/helm-unittest) against a c
 | `path` | yes | — | Path to the Helm chart directory |
 | `test_files` | no | `'unittests/**/*.yaml'` | Glob pattern for test files relative to the chart directory |
 | `strict` | no | `true` | Run helm-unittest with `--strict` flag |
-| `helm_unittest_version` | no | `'v1.1.0'` | Version of the helm-unittest plugin to install |
+| `helm_unittest_version` | no | `'v1.1.2'` | Version of the helm-unittest plugin to install |
 | `update_dependencies` | no | `false` | Run `helm dependency update` before running tests |
 | `runner` | no | `'self-hosted'` | Runner label |
 
