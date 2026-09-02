@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/mogenius/github-actions/compare/v1.7.8...v1.8.0) (2026-09-02)
+
+
+### Features
+
+* add update dependency input for helm-lint ([3669f7a](https://github.com/mogenius/github-actions/commit/3669f7a60863c507800378d42c556b0d86c5d000))
+
 ## [1.7.8](https://github.com/mogenius/github-actions/compare/v1.7.7...v1.7.8) (2026-08-31)
 
 
