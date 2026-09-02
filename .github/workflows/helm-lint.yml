@@ -7,6 +7,11 @@ on:
         description: 'Path to the Helm chart directory'
         required: true
         type: string
+      update_dependencies:
+        description: 'Run helm dependency update before linting'
+        required: false
+        default: false
+        type: boolean
       runner:
         description: 'Runner label'
         required: false
@@ -27,6 +32,10 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+
+      - name: Update chart dependencies
+        if: inputs.update_dependencies
+        run: helm dependency update .
 
       - name: Helm lint
         run: helm lint .
