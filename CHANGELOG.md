@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/mogenius/github-actions/compare/v1.8.0...v1.8.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **deps:** update docker/setup-qemu-action action to v4.3.0 ([4e3ada7](https://github.com/mogenius/github-actions/commit/4e3ada7e326df5720743d00cd9ae3fdf83abdda6))
+
 # [1.8.0](https://github.com/mogenius/github-actions/compare/v1.7.8...v1.8.0) (2026-09-02)
 
 
