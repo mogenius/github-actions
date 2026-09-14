@@ -61,8 +61,10 @@ jobs:
         env:
           VALUES: ${{ inputs.values }}
           SET_OVERRIDES: ${{ inputs.set }}
+          RELEASE_NAME: ${{ inputs.release_name }}
+          NAMESPACE: ${{ inputs.namespace }}
         run: |
-          ARGS=("${{ inputs.release_name }}" . --namespace "${{ inputs.namespace }}")
+          ARGS=("${RELEASE_NAME}" . --namespace "${NAMESPACE}")
 
           if [ -n "${VALUES}" ]; then
             printf '%s' "${VALUES}" > /tmp/helm-values.yaml
