@@ -81,10 +81,12 @@ jobs:
           VERSION: ${{ inputs.version }}
           FILE: ${{ inputs.file }}
           PACKAGE: ${{ inputs.package }}
+          REPOSITORY: ${{ inputs.repository }}
+          REF: ${{ inputs.ref }}
         run: |
           echo "::group::Configuration"
-          echo "Repository : ${{ inputs.repository }}"
-          echo "Branch     : ${{ inputs.ref }}"
+          echo "Repository : ${REPOSITORY}"
+          echo "Branch     : ${REF}"
           echo "File       : ${FILE}"
           echo "Package    : ${PACKAGE}"
           echo "Version    : ${VERSION}"
@@ -112,7 +114,7 @@ jobs:
             echo "::endgroup::"
             git commit -m "chore(deps): update ${PACKAGE##*/} to ${VERSION} [skip ci]"
             git push origin HEAD
-            echo "::notice::Deployed ${PACKAGE##*/} ${VERSION} to ${{ inputs.repository }}@${{ inputs.ref }}"
+            echo "::notice::Deployed ${PACKAGE##*/} ${VERSION} to ${REPOSITORY}@${REF}"
           fi
 
           echo "## GitOps Deploy" >> $GITHUB_STEP_SUMMARY
