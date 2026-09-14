@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/mogenius/github-actions/compare/v1.8.3...v1.8.4) (2026-09-14)
+
+
+### Bug Fixes
+
+* reduce risk of code injection via template expansion ([030334a](https://github.com/mogenius/github-actions/commit/030334a99dafcd550da6defc22e110facfb0aa79))
+
 ## [1.8.3](https://github.com/mogenius/github-actions/compare/v1.8.2...v1.8.3) (2026-09-14)
 
 
