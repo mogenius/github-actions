@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/mogenius/github-actions/compare/v1.8.2...v1.8.3) (2026-09-14)
+
+
+### Bug Fixes
+
+* missing skip persisting of credentials ([0137b4f](https://github.com/mogenius/github-actions/commit/0137b4f7a177ff0dc1197fa2b5ef36ca2239ff30))
+
 ## [1.8.2](https://github.com/mogenius/github-actions/compare/v1.8.1...v1.8.2) (2026-09-14)
 
 
