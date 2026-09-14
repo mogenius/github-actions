@@ -120,8 +120,8 @@ jobs:
           echo "## GitOps Deploy" >> $GITHUB_STEP_SUMMARY
           echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Repository | ${{ inputs.repository }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch | ${{ inputs.ref }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${REPOSITORY} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${REF} |" >> $GITHUB_STEP_SUMMARY
           echo "| File | ${FILE} |" >> $GITHUB_STEP_SUMMARY
           echo "| Package | ${PACKAGE} |" >> $GITHUB_STEP_SUMMARY
           echo "| Version | ${VERSION} |" >> $GITHUB_STEP_SUMMARY
