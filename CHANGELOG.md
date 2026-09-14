@@ -1,3 +1,14 @@
+## [1.8.2](https://github.com/mogenius/github-actions/compare/v1.8.1...v1.8.2) (2026-09-14)
+
+
+### Bug Fixes
+
+* **automerge:** scope github app token to needed repository ([5b4df61](https://github.com/mogenius/github-actions/commit/5b4df613f91012dc83ed8866670e54c579495357))
+* do not persist credentials on pull ([9a5a396](https://github.com/mogenius/github-actions/commit/9a5a39623982ea04d96583564ad199c1cfdfa62c))
+* move input references into env var references ([09bf05b](https://github.com/mogenius/github-actions/commit/09bf05b633052b222a6dbd2e27faba6f9a32fcde))
+* **release:** adding missing permissions block ([fd0f172](https://github.com/mogenius/github-actions/commit/fd0f172ac6873bee2a56ddb1e55c24f7e8eda166))
+* **semantic-release:** hash to version comment mismatch ([0ffeb39](https://github.com/mogenius/github-actions/commit/0ffeb390a0c7263223f9f9067f1e12ec40e78d5f))
+
 ## [1.8.1](https://github.com/mogenius/github-actions/compare/v1.8.0...v1.8.1) (2026-09-08)
 
 
