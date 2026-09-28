@@ -1,3 +1,12 @@
+## [1.8.5](https://github.com/mogenius/github-actions/compare/v1.8.4...v1.8.5) (2026-09-28)
+
+
+### Bug Fixes
+
+* **deps:** update docker/build-push-action action to v7.4.0 ([771b051](https://github.com/mogenius/github-actions/commit/771b051a59f7d59de2051ca5f34adcc5f044e259))
+* **deps:** update docker/setup-buildx-action action to v4.4.1 ([533c238](https://github.com/mogenius/github-actions/commit/533c238271a48a225d55cee8c1105f7715076e10))
+* **deps:** update docker/setup-qemu-action action to v4.4.0 ([f2d5416](https://github.com/mogenius/github-actions/commit/f2d5416a052f11ae12f45e6e8dea58d2de8ec95f))
+
 ## [1.8.4](https://github.com/mogenius/github-actions/compare/v1.8.3...v1.8.4) (2026-09-14)
 
 
