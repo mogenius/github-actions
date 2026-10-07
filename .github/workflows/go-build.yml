@@ -32,6 +32,7 @@ on:
 jobs:
   go-build:
     runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ${{ inputs.path }}
@@ -41,12 +42,12 @@ jobs:
         with:
           persist-credentials: false
 
-      # ARC runners start from a clean container, so $GOMODCACHE and $GOCACHE do not
-      # exist yet. actions/cache resolves its paths via glob and aborts the restore
-      # ("Some specified paths were not resolved") when they are missing, which
-      # silently disabled the Go cache on every run. Create them up front.
-      - name: Prepare Go cache dirs
-        run: mkdir -p ~/go/pkg/mod ~/.cache/go-build
+      # ARC runners start from a clean container, so $GOCACHE does not exist yet.
+      # actions/cache resolves its paths via glob and aborts the restore ("Some
+      # specified paths were not resolved") when they are missing, which silently
+      # disabled the Go cache on every run. Create it up front.
+      - name: Prepare Go cache dir
+        run: mkdir -p ~/.cache/go-build
 
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
@@ -57,21 +58,37 @@ jobs:
       # Restored separately instead of via setup-go's `cache: true`: setup-go only
       # looks up an exact go.sum hash and has no restore-keys fallback, so every
       # dependency bump rebuilt the whole module graph from scratch.
-      - name: Restore Go build & module cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      #
+      # Only the build cache is carried between runs. The module cache is ~750 MB of
+      # sources that `go` downloads again from the proxy in well under a minute, and
+      # every dependency bump would otherwise keep the old versions in it for good.
+      # Each job keeps its own entry, since test, lint and build compile different
+      # package sets and only the first job to finish could save a shared one.
+      - name: Restore Go build cache
+        id: go-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
+          path: ~/.cache/go-build
           # `path` is the directory the tool runs in, which is not always the module
           # root: a repo may keep go.mod at the top level and point the job at a
           # subdirectory. hashFiles returns an empty string for a file that does not
           # exist, which would collapse the key to a constant that never invalidates,
           # so fall back to the repo-root go.sum.
-          key: go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-${{ hashFiles(format('{0}/go.sum', inputs.path)) || hashFiles('go.sum') }}
+          key: go-build-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-${{ hashFiles(format('{0}/go.sum', inputs.path)) || hashFiles('go.sum') }}
           restore-keys: |
-            go-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-
-            go-${{ runner.os }}-${{ runner.arch }}-
+            go-build-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}-${{ inputs.go_version }}-
+            go-build-${{ github.job }}-${{ runner.os }}-${{ runner.arch }}-
+
+      # A fallback restore brings along every entry of the run that saved it, and the
+      # next save carried all of them on, so the cache only ever grew: past 2 GiB
+      # compressed it no longer fit the runner's work volume and the pod was evicted
+      # mid-restore ("The self-hosted runner lost communication with the server").
+      # Go refreshes an entry's mtime when it uses it and the mtime is over an hour
+      # old, so backdate everything restored by two hours: whatever this run does not
+      # touch is pruned before the save, and the cache holds exactly one run's worth.
+      - name: Mark restored build cache entries as unused
+        if: steps.go-cache.outputs.cache-hit != 'true'
+        run: find ~/.cache/go-build -type f -exec touch -m -d '2 hours ago' {} +
 
       - name: Build
         env:
@@ -82,3 +99,18 @@ jobs:
           [ -n "${OUTPUT}" ] && ARGS+=(-o "${OUTPUT}")
           [ -n "${LDFLAGS}" ] && ARGS+=(-ldflags "${LDFLAGS}")
           go build "${ARGS[@]}" ./...
+
+      - name: Prune unused build cache entries
+        if: success() && steps.go-cache.outputs.cache-hit != 'true'
+        run: |
+          find ~/.cache/go-build -type f -mmin +60 -delete
+          du -sh ~/.cache/go-build
+
+      # Saved only after a green run: an exact key is never written again, so a cache
+      # saved after a compile error would stay incomplete until go.sum changes.
+      - name: Save Go build cache
+        if: success() && steps.go-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/go-build
+          key: ${{ steps.go-cache.outputs.cache-primary-key }}
