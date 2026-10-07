@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/mogenius/github-actions/compare/v1.8.5...v1.8.6) (2026-10-07)
+
+
+### Bug Fixes
+
+* **go:** keep the Go build cache to what one run uses ([e5e8915](https://github.com/mogenius/github-actions/commit/e5e8915e924b9c33c4e38585162f283c6bac4bc8))
+
 ## [1.8.5](https://github.com/mogenius/github-actions/compare/v1.8.4...v1.8.5) (2026-09-28)
 
 
