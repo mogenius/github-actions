@@ -170,6 +170,12 @@ jobs:
           secret-envs: ${{ inputs.build_secret_envs }}
           sbom: ${{ inputs.sbom }}
           provenance: ${{ inputs.provenance }}
+          # Reuse the build cache across runs (per caller-repo, per image+arch)
+          # so unchanged layers (base image, dep installs) are not rebuilt.
+          cache-from: |
+            type=gha,scope=${{ inputs.image }}-amd64
+          cache-to: |
+            type=gha,mode=max,scope=${{ inputs.image }}-amd64
 
   build-arm64:
     if: contains(inputs.architectures, 'arm64')
@@ -230,6 +236,12 @@ jobs:
           secret-envs: ${{ inputs.build_secret_envs }}
           sbom: ${{ inputs.sbom }}
           provenance: ${{ inputs.provenance }}
+          # Reuse the build cache across runs (per caller-repo, per image+arch)
+          # so unchanged layers (base image, dep installs) are not rebuilt.
+          cache-from: |
+            type=gha,scope=${{ inputs.image }}-arm64
+          cache-to: |
+            type=gha,mode=max,scope=${{ inputs.image }}-arm64
 
   build-armv7:
     if: contains(inputs.architectures, 'armv7')
@@ -296,6 +308,12 @@ jobs:
           secret-envs: ${{ inputs.build_secret_envs }}
           sbom: ${{ inputs.sbom }}
           provenance: ${{ inputs.provenance }}
+          # Reuse the build cache across runs (per caller-repo, per image+arch)
+          # so unchanged layers (base image, dep installs) are not rebuilt.
+          cache-from: |
+            type=gha,scope=${{ inputs.image }}-armv7
+          cache-to: |
+            type=gha,mode=max,scope=${{ inputs.image }}-armv7
 
   # ============================================================================
   # Create multi-arch manifest combining all successfully built arch images
