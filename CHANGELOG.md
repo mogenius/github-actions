@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/mogenius/github-actions/compare/v1.8.6...v1.9.0) (2026-10-08)
+
+
+### Features
+
+* workflow to publish helm chart ([aecef3c](https://github.com/mogenius/github-actions/commit/aecef3c4946e8db07e16ad28b24ee03b7985b8cf))
+
 ## [1.8.6](https://github.com/mogenius/github-actions/compare/v1.8.5...v1.8.6) (2026-10-07)
 
 
