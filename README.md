@@ -282,6 +282,52 @@ lint:
 
 ---
 
+### `helm-publish.yml` — Helm Publish
+
+Packages a Helm chart and publishes it to a GitHub Pages-based chart repository. Copies the tarball to the `gh-pages` branch, regenerates `index.yaml`, and pushes with automatic retry on conflict. Supports GitHub App auth or a PAT.
+
+#### Secrets
+
+| Name | Description |
+|------|-------------|
+| `APP_ID` | GitHub App client ID (use with `APP_PRIVATE_KEY`) |
+| `APP_PRIVATE_KEY` | GitHub App private key |
+| `RELEASE_TOKEN` | PAT alternative to App auth |
+
+Either `RELEASE_TOKEN` or both App secrets must be set. The app or PAT must have write access to the chart repository.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `chart-path` | yes | — | Path to the Helm chart directory |
+| `version` | yes | — | Chart version to package |
+| `channel` | no | `'public'` | Target channel: `public` or `private` |
+| `repository` | no | `'mogenius/helm-charts'` | GitHub Pages chart repository (`org/repo`) |
+| `base-url` | no | `'https://helm.mogenius.com'` | Base URL of the chart repository |
+| `app-version` | no | `''` | App version passed to `helm package --app-version` |
+| `pre-package` | no | `''` | Shell commands to run in the chart directory before packaging |
+| `update-dependencies` | no | `false` | Run `helm dependency update` before packaging |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+publish:
+  needs: [prepare]
+  uses: mogenius/github-actions/.github/workflows/helm-publish.yml@<sha> # main
+  secrets:
+    APP_ID: ${{ secrets.RELEASE_APP_ID }}
+    APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_SECRET }}
+  with:
+    chart-path: ./charts/my-service
+    version: ${{ needs.prepare.outputs.version }}
+    app-version: ${{ needs.prepare.outputs.version }}
+    channel: public
+```
+
+---
+
 ### `helm-lint.yml` — Helm Lint
 
 Runs `helm lint` against a chart directory.
