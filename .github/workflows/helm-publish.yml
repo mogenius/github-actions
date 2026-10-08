@@ -170,7 +170,7 @@ jobs:
             fi
 
             git add "${CHANNEL}/"
-            git commit -m "publish: ${CHART_NAME}"
+            git commit -m "chore: publish ${CHART_NAME}"
 
             if git push; then
               echo "::notice::Published ${CHART_NAME} to ${CHANNEL}"
