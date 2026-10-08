@@ -36,6 +36,16 @@ on:
         required: false
         default: 'https://helm.mogenius.com'
         type: string
+      app-version:
+        description: 'App version to set (passed to helm package --app-version)'
+        required: false
+        default: ''
+        type: string
+      pre-package:
+        description: 'Shell commands to run in the chart directory before packaging'
+        required: false
+        default: ''
+        type: string
       update-dependencies:
         description: 'Run helm dependency update before packaging'
         required: false
@@ -52,9 +62,11 @@ jobs:
     runs-on: ${{ inputs.runner }}
     steps:
       - name: Validate inputs
+        env:
+          CHANNEL: ${{ inputs.channel }}
         run: |
-          if [ "${{ inputs.channel }}" != "public" ] && [ "${{ inputs.channel }}" != "private" ]; then
-            echo "::error::channel must be 'public' or 'private', got '${{ inputs.channel }}'"
+          if [ "${CHANNEL}" != "public" ] && [ "${CHANNEL}" != "private" ]; then
+            echo "::error::channel must be 'public' or 'private', got '${CHANNEL}'"
             exit 1
           fi
 
@@ -82,6 +94,7 @@ jobs:
           client-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           repositories: ${{ inputs.repository }}
+          permission-contents: write
 
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -94,13 +107,32 @@ jobs:
 
       - name: Update chart dependencies
         if: inputs.update-dependencies
-        run: helm dependency update ${{ inputs.chart-path }}
+        env:
+          CHART_PATH: ${{ inputs.chart-path }}
+        run: helm dependency update "${CHART_PATH}"
+
+      - name: Pre-package customization
+        if: inputs.pre-package != ''
+        working-directory: ${{ inputs.chart-path }}
+        env:
+          PRE_PACKAGE_SCRIPT: ${{ inputs.pre-package }}
+        run: eval "${PRE_PACKAGE_SCRIPT}"
 
       - name: Package chart
         id: package
+        env:
+          CHART_PATH: ${{ inputs.chart-path }}
+          VERSION: ${{ inputs.version }}
+          APP_VERSION: ${{ inputs.app-version }}
         run: |
-          helm package "${{ inputs.chart-path }}" \
-            --version "${{ inputs.version }}" \
+          APP_VERSION_FLAG=""
+          if [ -n "${APP_VERSION}" ]; then
+            APP_VERSION_FLAG="--app-version ${APP_VERSION}"
+          fi
+
+          helm package "${CHART_PATH}" \
+            --version "${VERSION}" \
+            ${APP_VERSION_FLAG} \
             --destination .helm-pkg
 
           tgz=$(ls .helm-pkg/*.tgz)
@@ -110,9 +142,10 @@ jobs:
       - name: Clone chart repository
         env:
           TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
+          REPOSITORY: ${{ inputs.repository }}
         run: |
           git clone --branch gh-pages --single-branch \
-            "https://x-access-token:${TOKEN}@github.com/${{ inputs.repository }}.git" \
+            "https://x-access-token:${TOKEN}@github.com/${REPOSITORY}.git" \
             .helm-repo
 
       - name: Publish chart
