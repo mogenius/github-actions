@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/mogenius/github-actions/compare/v1.9.0...v1.9.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* harden helm-publish action ([5f15a27](https://github.com/mogenius/github-actions/commit/5f15a27b4a578deceec3de6bae855109c877dd5a))
+
 # [1.9.0](https://github.com/mogenius/github-actions/compare/v1.8.6...v1.9.0) (2026-10-08)
 
 
