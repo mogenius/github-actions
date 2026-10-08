@@ -1,0 +1,171 @@
+name: Helm Publish
+
+on:
+  workflow_call:
+    secrets:
+      APP_ID:
+        description: 'GitHub App client ID (use with APP_PRIVATE_KEY)'
+        required: false
+      APP_PRIVATE_KEY:
+        description: 'GitHub App private key'
+        required: false
+      RELEASE_TOKEN:
+        description: 'PAT fallback when not using a GitHub App'
+        required: false
+    inputs:
+      chart-path:
+        description: 'Path to the Helm chart directory'
+        required: true
+        type: string
+      version:
+        description: 'Chart version to package'
+        required: true
+        type: string
+      channel:
+        description: 'Target channel: public or private'
+        required: false
+        default: 'public'
+        type: string
+      repository:
+        description: 'GitHub Pages chart repository (org/repo)'
+        required: false
+        default: 'mogenius/helm-charts'
+        type: string
+      base-url:
+        description: 'Base URL of the chart repository'
+        required: false
+        default: 'https://helm.mogenius.com'
+        type: string
+      update-dependencies:
+        description: 'Run helm dependency update before packaging'
+        required: false
+        default: false
+        type: boolean
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+jobs:
+  publish:
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Validate inputs
+        run: |
+          if [ "${{ inputs.channel }}" != "public" ] && [ "${{ inputs.channel }}" != "private" ]; then
+            echo "::error::channel must be 'public' or 'private', got '${{ inputs.channel }}'"
+            exit 1
+          fi
+
+      - name: Validate auth configuration
+        id: auth-check
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -n "${APP_ID}" ] && [ -n "${APP_PRIVATE_KEY}" ]; then
+            echo "use_app_auth=true" >> $GITHUB_OUTPUT
+          elif [ -n "${RELEASE_TOKEN}" ]; then
+            echo "use_app_auth=false" >> $GITHUB_OUTPUT
+          else
+            echo "::error::Either RELEASE_TOKEN or both APP_ID and APP_PRIVATE_KEY must be set"
+            exit 1
+          fi
+
+      - name: Generate app token
+        id: generate-token
+        if: steps.auth-check.outputs.use_app_auth == 'true'
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          repositories: ${{ inputs.repository }}
+
+      - name: Checkout source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+
+      - name: Update chart dependencies
+        if: inputs.update-dependencies
+        run: helm dependency update ${{ inputs.chart-path }}
+
+      - name: Package chart
+        id: package
+        run: |
+          helm package "${{ inputs.chart-path }}" \
+            --version "${{ inputs.version }}" \
+            --destination .helm-pkg
+
+          tgz=$(ls .helm-pkg/*.tgz)
+          echo "file=${tgz}" >> $GITHUB_OUTPUT
+          echo "name=$(basename "${tgz}" .tgz)" >> $GITHUB_OUTPUT
+
+      - name: Clone chart repository
+        env:
+          TOKEN: ${{ steps.generate-token.outputs.token || secrets.RELEASE_TOKEN }}
+        run: |
+          git clone --branch gh-pages --single-branch \
+            "https://x-access-token:${TOKEN}@github.com/${{ inputs.repository }}.git" \
+            .helm-repo
+
+      - name: Publish chart
+        working-directory: .helm-repo
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          URL: ${{ inputs.base-url }}/${{ inputs.channel }}
+          CHART_TGZ: ${{ steps.package.outputs.file }}
+          CHART_NAME: ${{ steps.package.outputs.name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          for attempt in $(seq 1 5); do
+            mkdir -p "${CHANNEL}"
+            cp "../${CHART_TGZ}" "${CHANNEL}/"
+
+            if [ -f "${CHANNEL}/index.yaml" ]; then
+              helm repo index "${CHANNEL}" --url "${URL}" --merge "${CHANNEL}/index.yaml"
+            else
+              helm repo index "${CHANNEL}" --url "${URL}"
+            fi
+
+            git add "${CHANNEL}/"
+            git commit -m "publish: ${CHART_NAME}"
+
+            if git push; then
+              echo "::notice::Published ${CHART_NAME} to ${CHANNEL}"
+              break
+            fi
+
+            if [ "${attempt}" -eq 5 ]; then
+              echo "::error::Failed to push after 5 attempts"
+              exit 1
+            fi
+
+            echo "::warning::Push conflict (attempt ${attempt}/5), retrying..."
+            git fetch origin gh-pages
+            git reset --hard origin/gh-pages
+            sleep $((attempt * 2))
+          done
+
+      - name: Summary
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          URL: ${{ inputs.base-url }}/${{ inputs.channel }}
+          CHART_NAME: ${{ steps.package.outputs.name }}
+          REPOSITORY: ${{ inputs.repository }}
+        run: |
+          echo "## Helm Publish" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Chart | ${CHART_NAME} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Channel | ${CHANNEL} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${REPOSITORY} |" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | ${URL} |" >> $GITHUB_STEP_SUMMARY
