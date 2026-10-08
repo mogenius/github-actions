@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/mogenius/github-actions/compare/v1.9.1...v1.9.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* **helm-publish:** use proper semantic commit type ([b1850b9](https://github.com/mogenius/github-actions/commit/b1850b98260bb19c66dfa2e101ea4a9ef2f7b4be))
+
 ## [1.9.1](https://github.com/mogenius/github-actions/compare/v1.9.0...v1.9.1) (2026-10-08)
 
 
