@@ -1,0 +1,93 @@
+name: Release Please
+
+on:
+  workflow_call:
+    inputs:
+      release_type:
+        description: 'Release type for release-please (e.g. simple, node, python). Leave empty to use config-file only.'
+        required: false
+        type: string
+        default: ''
+      config_file:
+        description: 'Path to release-please config file'
+        required: false
+        type: string
+        default: 'release-please-config.json'
+      manifest_file:
+        description: 'Path to release-please manifest file'
+        required: false
+        type: string
+        default: '.release-please-manifest.json'
+      auto_release:
+        description: 'Automatically merge the release PR when checks pass'
+        required: false
+        type: boolean
+        default: false
+      runs_on:
+        description: 'Runner OS to use'
+        required: false
+        type: string
+        default: 'self-hosted'
+    secrets:
+      APP_ID:
+        required: true
+      APP_PRIVATE_KEY:
+        required: true
+    outputs:
+      release_created:
+        description: 'Whether a release was created'
+        value: ${{ jobs.release-please.outputs.release_created }}
+      tag_name:
+        description: 'The tag name of the created release'
+        value: ${{ jobs.release-please.outputs.tag_name }}
+      version:
+        description: 'The version of the created release (without v prefix)'
+        value: ${{ jobs.release-please.outputs.version }}
+      pr:
+        description: 'The release PR number, if one was created or updated'
+        value: ${{ jobs.release-please.outputs.pr }}
+      pull_request_url:
+        description: 'The URL of the release PR, if one was created or updated'
+        value: ${{ jobs.release-please.outputs.pull_request_url }}
+
+jobs:
+  release-please:
+    runs-on: ${{ inputs.runs_on }}
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      pr: ${{ steps.release.outputs.pr }}
+      pull_request_url: ${{ steps.release.outputs.pull-request-url }}
+    steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          release-type: ${{ inputs.release_type }}
+          config-file: ${{ inputs.config_file }}
+          manifest-file: ${{ inputs.manifest_file }}
+
+      - name: Auto-merge release PR
+        if: ${{ inputs.auto_release && steps.release.outputs.pr }}
+        run: gh pr merge --rebase --admin "${SERVER_URL}/${REPOSITORY}/pull/${PR_NUMBER}"
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ fromJson(steps.release.outputs.pr).number }}
