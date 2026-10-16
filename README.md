@@ -61,6 +61,53 @@ prepare:
 
 ---
 
+### `release-please.yml` — Release Please
+
+Runs [release-please](https://github.com/googleapis/release-please) to manage version bumps and release PRs based on conventional commits. Can optionally auto-merge the release PR once created.
+
+#### Secrets
+
+| Name | Description |
+|------|-------------|
+| `APP_ID` | GitHub App client ID |
+| `APP_PRIVATE_KEY` | GitHub App private key |
+
+#### Inputs
+
+| Name | Default | Description |
+|------|---------|-------------|
+| `release_type` | `''` | Release type for release-please (e.g. `simple`, `node`, `python`). Leave empty to use config-file only. |
+| `config_file` | `'release-please-config.json'` | Path to release-please config file |
+| `manifest_file` | `'.release-please-manifest.json'` | Path to release-please manifest file |
+| `auto_release` | `false` | Automatically merge the release PR when checks pass |
+| `runs_on` | `'self-hosted'` | Runner OS to use |
+
+#### Outputs
+
+| Name | Description |
+|------|-------------|
+| `release_created` | Whether a release was created |
+| `tag_name` | The tag name of the created release |
+| `version` | The version of the created release (without `v` prefix) |
+| `pr` | The release PR number, if one was created or updated |
+| `pull_request_url` | The URL of the release PR, if one was created or updated |
+
+#### Example
+
+```yaml
+release-please:
+  uses: mogenius/github-actions/.github/workflows/release-please.yml@<sha> # main
+  secrets:
+    APP_ID: ${{ secrets.RELEASE_APP_ID }}
+    APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_SECRET }}
+  with:
+    auto_release: true
+```
+
+> **Note:** `auto_release` merges with `gh pr merge --admin`, which bypasses required status checks and reviews. If the target branch has protection rules active, the GitHub App must be granted bypass rights (added to the rule's "allow specified actors to bypass required pull requests" list, or given org-owner/admin) — otherwise the auto-merge will fail with a permission error.
+
+---
+
 ### `build-multiarch.yml` — Build Multi-Arch Container
 
 Builds a Docker image natively on amd64 and arm64 runners, cross-compiles armv7 on amd64 via QEMU, then assembles a combined multi-arch manifest.
