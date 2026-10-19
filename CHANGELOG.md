@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/mogenius/github-actions/compare/v1.9.2...v1.10.0) (2026-10-19)
+
+
+### Features
+
+* adding predefined github action for release please ([7544d12](https://github.com/mogenius/github-actions/commit/7544d12d2e72ab3788d700926cf4b883d197c6d2))
+
 ## [1.9.2](https://github.com/mogenius/github-actions/compare/v1.9.1...v1.9.2) (2026-10-08)
 
 
