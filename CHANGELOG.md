@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/mogenius/github-actions/compare/v1.10.0...v1.10.1) (2026-10-21)
+
+
+### Bug Fixes
+
+* **release-please:** invalid action format ([52b9cdd](https://github.com/mogenius/github-actions/commit/52b9cdd6ed3a3cc7346a8fe66a3e9263163607ba))
+
 # [1.10.0](https://github.com/mogenius/github-actions/compare/v1.9.2...v1.10.0) (2026-10-19)
 
 
