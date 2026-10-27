@@ -1,3 +1,10 @@
+## [1.10.3](https://github.com/mogenius/github-actions/compare/v1.10.2...v1.10.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** update actions/setup-node action to v7.1.0 ([c126fe3](https://github.com/mogenius/github-actions/commit/c126fe3fc5ac2cd88f96478123073318fb1ffaf7))
+
 ## [1.10.2](https://github.com/mogenius/github-actions/compare/v1.10.1...v1.10.2) (2026-10-27)
 
 
