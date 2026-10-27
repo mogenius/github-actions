@@ -1,3 +1,11 @@
+## [1.10.2](https://github.com/mogenius/github-actions/compare/v1.10.1...v1.10.2) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** update cycjimmy/semantic-release-action action to v8 ([02de0e7](https://github.com/mogenius/github-actions/commit/02de0e70749c77f7cac890c476ae8ba80c970bd2))
+* **deps:** update docker/login-action action to v4.7.0 ([97f8dbd](https://github.com/mogenius/github-actions/commit/97f8dbd70e884aae492cb1510b80e227cfb9b28b))
+
 ## [1.10.1](https://github.com/mogenius/github-actions/compare/v1.10.0...v1.10.1) (2026-10-21)
 
 
