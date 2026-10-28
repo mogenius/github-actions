@@ -1,3 +1,12 @@
+## [1.10.4](https://github.com/mogenius/github-actions/compare/v1.10.3...v1.10.4) (2026-10-28)
+
+
+### Bug Fixes
+
+* **ci:** set up python with pip for zizmor-action v0.8.0 ([ebedb8d](https://github.com/mogenius/github-actions/commit/ebedb8db77c6be790c984494996118bdaa066e38))
+* **deps:** update actions/create-github-app-token action to v3.3.0 ([df40bfe](https://github.com/mogenius/github-actions/commit/df40bfeadfefae73df819aa33b2b87eccda12d2f))
+* **deps:** update zizmorcore/zizmor-action action to v0.8.0 ([9f9a2c8](https://github.com/mogenius/github-actions/commit/9f9a2c8542dad6258fd31fda5522c95b0a3cba12))
+
 ## [1.10.3](https://github.com/mogenius/github-actions/compare/v1.10.2...v1.10.3) (2026-10-27)
 
 
