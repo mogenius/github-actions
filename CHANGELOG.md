@@ -1,3 +1,10 @@
+## [1.10.5](https://github.com/mogenius/github-actions/compare/v1.10.4...v1.10.5) (2026-10-30)
+
+
+### Bug Fixes
+
+* **deps:** update cycjimmy/semantic-release-action action to v8.1.4 ([#58](https://github.com/mogenius/github-actions/issues/58)) ([9c20bd5](https://github.com/mogenius/github-actions/commit/9c20bd5d23a166085e62f89a3bed135be4b840ba))
+
 ## [1.10.4](https://github.com/mogenius/github-actions/compare/v1.10.3...v1.10.4) (2026-10-28)
 
 
