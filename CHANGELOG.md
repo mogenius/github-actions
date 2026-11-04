@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/mogenius/github-actions/compare/v1.13.0...v1.13.1) (2026-11-04)
+
+
+### Bug Fixes
+
+* add an input to merge as admin ([14941bf](https://github.com/mogenius/github-actions/commit/14941bfe0ba9965ff440f3be1063eb6e0df471ad))
+
 # [1.13.0](https://github.com/mogenius/github-actions/compare/v1.12.0...v1.13.0) (2026-11-04)
 
 
