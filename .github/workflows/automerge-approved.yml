@@ -11,7 +11,7 @@ on:
         required: false
     inputs:
       label:
-        description: 'Label that marks PRs eligible for automerge'
+        description: 'Label(s) that mark PRs eligible for automerge. Comma-separated to require all of them.'
         required: false
         default: 'automerge-approved'
         type: string
@@ -89,9 +89,16 @@ jobs:
           MERGE_METHOD: ${{ inputs.merge_method }}
           DELETE_BRANCH: ${{ inputs.delete_branch }}
         run: |
-          echo "Fetching open PRs with label '${LABEL}'..."
+          IFS=',' read -ra LABEL_PARTS <<< "${LABEL}"
+          LABEL_ARGS=()
+          for PART in "${LABEL_PARTS[@]}"; do
+            TRIMMED="$(echo -n "${PART}" | xargs)"
+            [ -n "${TRIMMED}" ] && LABEL_ARGS+=(--label "${TRIMMED}")
+          done
+
+          echo "Fetching open PRs with label(s) '${LABEL}'..."
           PR_LIST=$(gh pr list \
-            --label "${LABEL}" \
+            "${LABEL_ARGS[@]}" \
             --state open \
             --json number,title,mergeable,mergeStateStatus)
 
