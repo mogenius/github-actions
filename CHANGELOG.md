@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/mogenius/github-actions/compare/v1.12.0...v1.13.0) (2026-11-04)
+
+
+### Features
+
+* allow the auto merge action to receive multiple labels ([2c8cf8e](https://github.com/mogenius/github-actions/commit/2c8cf8eaf0b10c638aa95c1fdbb878240102b8db))
+
 # [1.12.0](https://github.com/mogenius/github-actions/compare/v1.11.0...v1.12.0) (2026-11-04)
 
 
