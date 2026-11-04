@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/mogenius/github-actions/compare/v1.13.1...v1.13.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* support tag or targetRevision for updates ([bb5bf14](https://github.com/mogenius/github-actions/commit/bb5bf14d8945bcb1f4818436f4facf94cff52504))
+
 ## [1.13.1](https://github.com/mogenius/github-actions/compare/v1.13.0...v1.13.1) (2026-11-04)
 
 
