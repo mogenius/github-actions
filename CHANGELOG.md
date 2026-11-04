@@ -1,3 +1,10 @@
+## [1.13.3](https://github.com/mogenius/github-actions/compare/v1.13.2...v1.13.3) (2026-11-04)
+
+
+### Bug Fixes
+
+* sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
+
 ## [1.13.2](https://github.com/mogenius/github-actions/compare/v1.13.1...v1.13.2) (2026-11-04)
 
 
