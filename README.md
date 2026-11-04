@@ -170,7 +170,7 @@ build:
 
 ### `gitops-deploy.yml` — GitOps Deploy
 
-Updates an image tag in a GitOps repository (e.g. an ArgoCD application YAML) and commits the change. Matches the tag line using a [Renovate](https://docs.renovatebot.com/) `datasource=docker depName=` annotation comment. Supports GitHub App auth or a PAT.
+Updates an image tag or Helm chart version in a GitOps repository (e.g. an ArgoCD application YAML) and commits the change. Matches a `tag:` or `targetRevision:` line using a [Renovate](https://docs.renovatebot.com/) `datasource=docker depName=` annotation comment. Supports GitHub App auth or a PAT.
 
 #### Secrets
 
