@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/mogenius/github-actions/compare/v1.10.5...v1.11.0) (2026-11-04)
+
+
+### Features
+
+* allow release please action to label release prs with updateType ([59b4746](https://github.com/mogenius/github-actions/commit/59b47465a12abae02df1ce387df9306d631d988c))
+
 ## [1.10.5](https://github.com/mogenius/github-actions/compare/v1.10.4...v1.10.5) (2026-10-30)
 
 
