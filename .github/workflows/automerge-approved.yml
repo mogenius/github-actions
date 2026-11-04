@@ -25,6 +25,11 @@ on:
         required: false
         default: true
         type: boolean
+      admin_merge:
+        description: 'Merge with administrator privileges, bypassing required reviews/status checks. The merging actor must have bypass/admin rights on the repo.'
+        required: false
+        default: false
+        type: boolean
       runner:
         description: 'Runner to use for the job'
         required: false
@@ -88,6 +93,7 @@ jobs:
           LABEL: ${{ inputs.label }}
           MERGE_METHOD: ${{ inputs.merge_method }}
           DELETE_BRANCH: ${{ inputs.delete_branch }}
+          ADMIN_MERGE: ${{ inputs.admin_merge }}
         run: |
           IFS=',' read -ra LABEL_PARTS <<< "${LABEL}"
           LABEL_ARGS=()
@@ -146,9 +152,23 @@ jobs:
 
             MERGE_ARGS=("${NUMBER}" "--${MERGE_METHOD}")
             [ "${DELETE_BRANCH}" == "true" ] && MERGE_ARGS+=(--delete-branch)
+            [ "${ADMIN_MERGE}" == "true" ] && MERGE_ARGS+=(--admin)
 
-            if [ "${MERGEABLE}" == "MERGEABLE" ] && [ "${STATE}" == "CLEAN" ]; then
-              echo "  Merging with method '${MERGE_METHOD}'..."
+            READY=false
+            if [ "${ADMIN_MERGE}" == "true" ]; then
+              # Admin merge bypasses required reviews/status checks, but can't
+              # fix an actual conflict or merge a draft PR.
+              if [ "${MERGEABLE}" != "CONFLICTING" ] && [ "${STATE}" != "DRAFT" ]; then
+                READY=true
+              fi
+            elif [ "${MERGEABLE}" == "MERGEABLE" ] && [ "${STATE}" == "CLEAN" ]; then
+              READY=true
+            fi
+
+            if [ "${READY}" == "true" ]; then
+              SUFFIX=""
+              [ "${ADMIN_MERGE}" == "true" ] && SUFFIX=" (admin)"
+              echo "  Merging with method '${MERGE_METHOD}'${SUFFIX}..."
               if gh pr merge "${MERGE_ARGS[@]}"; then
                 echo "  Merged successfully."
                 echo "| [#${NUMBER}](${GITHUB_SERVER_URL}/${GH_REPO}/pull/${NUMBER}) | ${TITLE} | Merged |" >> $GITHUB_STEP_SUMMARY
