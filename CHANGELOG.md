@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/mogenius/github-actions/compare/v1.11.0...v1.12.0) (2026-11-04)
+
+
+### Features
+
+* activate the update type labeling by default ([d8004e9](https://github.com/mogenius/github-actions/commit/d8004e9f62ee0dbad303fe57147f0de9a645392a))
+
 # [1.11.0](https://github.com/mogenius/github-actions/compare/v1.10.5...v1.11.0) (2026-11-04)
 
 
