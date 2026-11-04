@@ -27,7 +27,7 @@ on:
         description: 'Label the release PR with updateType:patch|minor|major based on the version bump'
         required: false
         type: boolean
-        default: false
+        default: true
       runs_on:
         description: 'Runner OS to use'
         required: false
