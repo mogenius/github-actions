@@ -1,0 +1,16 @@
+name: Automerge Patch Release PR
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  automerge:
+    uses: mogenius/github-actions/.github/workflows/automerge-approved.yml@b198c21dc984080a27bbda6f6d88f2c852c79020 # v1.13.3
+    with:
+      label: 'autorelease: pending,updateType:patch'
+      admin_merge: true
+    secrets:
+      APP_ID: ${{ secrets.RELEASE_APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_SECRET }}
