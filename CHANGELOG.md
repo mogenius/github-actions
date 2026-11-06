@@ -5,6 +5,18 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.13.4](https://github.com/mogenius/github-actions/compare/v1.13.3...v1.13.4) (2026-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update actions/setup-python action to v7.1.0 ([2f2e0ae](https://github.com/mogenius/github-actions/commit/2f2e0ae3e7f62e484e8e761003391a9f9ecc3ab4))
+* **deps:** update dependency node to v26 ([44f67c8](https://github.com/mogenius/github-actions/commit/44f67c8db0765fb3adc35ede8b5ce271e3c46795))
+* **deps:** update dependency python to 3.15 ([25598aa](https://github.com/mogenius/github-actions/commit/25598aa4b5f8222f0079acbd36245ce5d441af70))
+* **deps:** update zizmorcore/zizmor-action action to v0.8.1 ([#63](https://github.com/mogenius/github-actions/issues/63)) ([f8d2350](https://github.com/mogenius/github-actions/commit/f8d2350211d391870f0f7bb54cbdc3ad3449fdac))
+* switch to release please with weekly auto merge ([8dcf7b0](https://github.com/mogenius/github-actions/commit/8dcf7b003b27acafd012fd100d706a7414797653))
+* use plain reference for auto release action ([ac9ce6b](https://github.com/mogenius/github-actions/commit/ac9ce6b2ec34a63204cf9d519695d2039c9db8be))
+
 ## [1.13.2](https://github.com/mogenius/github-actions/compare/v1.13.1...v1.13.2) (2026-11-04)
 
 
