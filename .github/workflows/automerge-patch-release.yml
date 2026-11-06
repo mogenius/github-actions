@@ -7,7 +7,7 @@ on:
 
 jobs:
   automerge:
-    uses: mogenius/github-actions/.github/workflows/automerge-approved.yml@b198c21dc984080a27bbda6f6d88f2c852c79020 # v1.13.3
+    uses: $/.github/workflows/automerge-approved.yml
     with:
       label: 'autorelease: pending,updateType:patch'
       admin_merge: true
