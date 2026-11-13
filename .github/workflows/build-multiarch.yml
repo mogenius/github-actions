@@ -172,10 +172,12 @@ jobs:
           provenance: ${{ inputs.provenance }}
           # Reuse the build cache across runs (per caller-repo, per image+arch)
           # so unchanged layers (base image, dep installs) are not rebuilt.
+          # ignore-error: a failing cache export (e.g. DNS hiccup on the
+          # self-hosted runner) must not fail an otherwise pushed build.
           cache-from: |
             type=gha,scope=${{ inputs.image }}-amd64
           cache-to: |
-            type=gha,mode=max,scope=${{ inputs.image }}-amd64
+            type=gha,mode=max,ignore-error=true,scope=${{ inputs.image }}-amd64
 
   build-arm64:
     if: contains(inputs.architectures, 'arm64')
@@ -238,10 +240,12 @@ jobs:
           provenance: ${{ inputs.provenance }}
           # Reuse the build cache across runs (per caller-repo, per image+arch)
           # so unchanged layers (base image, dep installs) are not rebuilt.
+          # ignore-error: a failing cache export (e.g. DNS hiccup on the
+          # self-hosted runner) must not fail an otherwise pushed build.
           cache-from: |
             type=gha,scope=${{ inputs.image }}-arm64
           cache-to: |
-            type=gha,mode=max,scope=${{ inputs.image }}-arm64
+            type=gha,mode=max,ignore-error=true,scope=${{ inputs.image }}-arm64
 
   build-armv7:
     if: contains(inputs.architectures, 'armv7')
@@ -310,10 +314,12 @@ jobs:
           provenance: ${{ inputs.provenance }}
           # Reuse the build cache across runs (per caller-repo, per image+arch)
           # so unchanged layers (base image, dep installs) are not rebuilt.
+          # ignore-error: a failing cache export (e.g. DNS hiccup on the
+          # self-hosted runner) must not fail an otherwise pushed build.
           cache-from: |
             type=gha,scope=${{ inputs.image }}-armv7
           cache-to: |
-            type=gha,mode=max,scope=${{ inputs.image }}-armv7
+            type=gha,mode=max,ignore-error=true,scope=${{ inputs.image }}-armv7
 
   # ============================================================================
   # Create multi-arch manifest combining all successfully built arch images
