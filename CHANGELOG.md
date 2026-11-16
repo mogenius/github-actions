@@ -5,6 +5,13 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.14.0](https://github.com/mogenius/github-actions/compare/v1.13.4...v1.14.0) (2026-11-16)
+
+
+### Features
+
+* adding conventional commit predefined action ([f5097b9](https://github.com/mogenius/github-actions/commit/f5097b96970726416602acec00e2dbc098d3fa47))
+
 ## [1.13.4](https://github.com/mogenius/github-actions/compare/v1.13.3...v1.13.4) (2026-11-13)
 
 
