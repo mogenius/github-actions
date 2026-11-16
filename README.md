@@ -250,6 +250,29 @@ automerge:
 
 ---
 
+### `conventional-commits.yml` — Conventional Commits
+
+Validates that every commit message in a pull request follows the [Conventional Commits](https://www.conventionalcommits.org/) format (`<type>(<scope>)?!?: <description>`). Relies on `github.event.pull_request` from the triggering event, so the caller workflow must itself be triggered by `pull_request`.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `runner` | no | `'self-hosted'` | Runner label for the job |
+
+#### Example
+
+```yaml
+on:
+  pull_request:
+
+jobs:
+  check-commits:
+    uses: mogenius/github-actions/.github/workflows/conventional-commits.yml@<sha> # main
+```
+
+---
+
 ### `go-build.yml` — Go Build
 
 Compiles all packages in a Go module with `go build ./...`.
