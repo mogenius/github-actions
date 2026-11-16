@@ -5,6 +5,13 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.14.1](https://github.com/mogenius/github-actions/compare/v1.14.0...v1.14.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* conventional commits was not callable ([677e37d](https://github.com/mogenius/github-actions/commit/677e37d3ff113b2be3c1b8b5da32f503dcb9ad7f))
+
 ## [1.14.0](https://github.com/mogenius/github-actions/compare/v1.13.4...v1.14.0) (2026-11-16)
 
 
