@@ -7,7 +7,6 @@
   "patch": {
     "automerge": true
   },
-  "prCreation": "not-pending",
   "packageRules": [
     {
       "matchManagers": [
