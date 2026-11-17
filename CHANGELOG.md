@@ -5,6 +5,18 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.15.0](https://github.com/mogenius/github-actions/compare/v1.14.1...v1.15.0) (2026-11-17)
+
+
+### Features
+
+* improved gitops deploy to update more kinds of image tags ([131530a](https://github.com/mogenius/github-actions/commit/131530aedd2c49525bfbe849accca11399149b13))
+
+
+### Bug Fixes
+
+* **deps:** update actions/setup-go action to v7.1.0 ([7a704c7](https://github.com/mogenius/github-actions/commit/7a704c71715cbd7792212e6ba4de6f0dcafb40e4))
+
 ## [1.14.1](https://github.com/mogenius/github-actions/compare/v1.14.0...v1.14.1) (2026-11-16)
 
 
