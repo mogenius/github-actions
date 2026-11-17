@@ -77,6 +77,38 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: Update image tag
+        # This step's `run` script is extracted and tested directly by
+        # tests/update-image-tag.bats (via yq) — no separate copy to keep in sync.
+        env:
+          VERSION: ${{ inputs.version }}
+          FILE: ${{ inputs.file }}
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          echo "::group::Configuration"
+          echo "File       : ${FILE}"
+          echo "Package    : ${PACKAGE}"
+          echo "Version    : ${VERSION}"
+          echo "::endgroup::"
+
+          PACKAGE_RE=$(printf '%s' "${PACKAGE}" | sed -E 's~[.[\*^$]~\\&~g')
+
+          echo "::group::Current file state"
+          grep -n -E "depName=${PACKAGE}|image:[[:space:]]*${PACKAGE_RE}:" "${FILE}" || echo "Warning: no matching depName annotation or image reference found for ${PACKAGE} in ${FILE}"
+          echo "::endgroup::"
+
+          # Form 1: tag/targetRevision split from the image, annotated with a Renovate datasource comment, e.g.
+          #   tag: 1.0.0 # datasource=docker depName=ghcr.io/mogenius/mogenius-ai-config
+          sed -i -E "s~^([[:space:]]*)(tag|targetRevision):[[:space:]]*.*(# datasource=docker depName=${PACKAGE})~\1\2: ${VERSION} \3~" "${FILE}"
+
+          # Form 2: full image reference with inline tag, marked with a plain Renovate comment, e.g.
+          #   image: ghcr.io/mogenius/mogenius-ai-config:1.0.0 # renovate
+          sed -i -E "s~^([[:space:]]*image:[[:space:]]*)${PACKAGE_RE}:[^[:space:]]+([[:space:]]*#[[:space:]]*renovate.*)?$~\1${PACKAGE}:${VERSION}\2~" "${FILE}"
+
+          echo "::group::Updated file state"
+          grep -n -E "depName=${PACKAGE}|image:[[:space:]]*${PACKAGE_RE}:" "${FILE}"
+          echo "::endgroup::"
+
+      - name: Commit and push
         env:
           VERSION: ${{ inputs.version }}
           FILE: ${{ inputs.file }}
@@ -84,26 +116,8 @@ jobs:
           REPOSITORY: ${{ inputs.repository }}
           REF: ${{ inputs.ref }}
         run: |
-          echo "::group::Configuration"
-          echo "Repository : ${REPOSITORY}"
-          echo "Branch     : ${REF}"
-          echo "File       : ${FILE}"
-          echo "Package    : ${PACKAGE}"
-          echo "Version    : ${VERSION}"
-          echo "::endgroup::"
-
-          echo "::group::Current file state"
-          grep -n "depName=${PACKAGE}" "${FILE}" || echo "Warning: no matching depName annotation found in ${FILE}"
-          echo "::endgroup::"
-
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          sed -i -E "s~^([[:space:]]*)(tag|targetRevision):[[:space:]]*.*(# datasource=docker depName=${PACKAGE})~\1\2: ${VERSION} \3~" "${FILE}"
-
-          echo "::group::Updated file state"
-          grep -n "depName=${PACKAGE}" "${FILE}"
-          echo "::endgroup::"
 
           git add "${FILE}"
           if git diff --cached --quiet; then
