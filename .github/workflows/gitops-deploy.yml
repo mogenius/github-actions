@@ -97,11 +97,11 @@ jobs:
           echo "::endgroup::"
 
           # Form 1: tag/targetRevision split from the image, annotated with a Renovate datasource comment, e.g.
-          #   tag: 1.0.0 # datasource=docker depName=ghcr.io/mogenius/mogenius-ai-config
+          #   tag: 1.1.0 # datasource=docker depName=ghcr.io/mogenius/mogenius-ai-config
           sed -i -E "s~^([[:space:]]*)(tag|targetRevision):[[:space:]]*.*(# datasource=docker depName=${PACKAGE})~\1\2: ${VERSION} \3~" "${FILE}"
 
           # Form 2: full image reference with inline tag, marked with a plain Renovate comment, e.g.
-          #   image: ghcr.io/mogenius/mogenius-ai-config:1.0.0 # renovate
+          #   image: ghcr.io/mogenius/mogenius-ai-config:1.1.0 # renovate
           sed -i -E "s~^([[:space:]]*image:[[:space:]]*)${PACKAGE_RE}:[^[:space:]]+([[:space:]]*#[[:space:]]*renovate.*)?$~\1${PACKAGE}:${VERSION}\2~" "${FILE}"
 
           echo "::group::Updated file state"
