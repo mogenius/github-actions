@@ -18,6 +18,11 @@ on:
         required: false
         type: string
         default: '.release-please-manifest.json'
+      target_branch:
+        description: 'Branch to open the release PR against. Leave empty for the branch the caller runs on.'
+        required: false
+        type: string
+        default: ''
       auto_release:
         description: 'Automatically merge the release PR when checks pass'
         required: false
@@ -89,6 +94,7 @@ jobs:
           release-type: ${{ inputs.release_type }}
           config-file: ${{ inputs.config_file }}
           manifest-file: ${{ inputs.manifest_file }}
+          target-branch: ${{ inputs.target_branch || github.ref_name }}
 
       - name: Label release PR with update type
         if: ${{ inputs.label_release_type && steps.release.outputs.pr }}
