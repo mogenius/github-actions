@@ -161,13 +161,24 @@ jobs:
 
           for attempt in $(seq 1 5); do
             mkdir -p "${CHANNEL}"
-            cp "../${CHART_TGZ}" "${CHANNEL}/"
+
+            # Index only the new chart in an empty staging dir, then merge the
+            # existing index into it. Indexing the whole channel dir would
+            # re-read every .tgz and reset all `created` timestamps to now,
+            # which breaks consumers relying on release age (e.g. Renovate
+            # minimumReleaseAge). The new entry wins over an existing one.
+            STAGING="$(mktemp -d)"
+            cp "../${CHART_TGZ}" "${STAGING}/"
 
             if [ -f "${CHANNEL}/index.yaml" ]; then
-              helm repo index "${CHANNEL}" --url "${URL}" --merge "${CHANNEL}/index.yaml"
+              helm repo index "${STAGING}" --url "${URL}" --merge "${CHANNEL}/index.yaml"
             else
-              helm repo index "${CHANNEL}" --url "${URL}"
+              helm repo index "${STAGING}" --url "${URL}"
             fi
+
+            mv "${STAGING}"/*.tgz "${CHANNEL}/"
+            mv "${STAGING}/index.yaml" "${CHANNEL}/index.yaml"
+            rm -rf "${STAGING}"
 
             git add "${CHANNEL}/"
             git commit -m "chore: publish ${CHART_NAME}"
