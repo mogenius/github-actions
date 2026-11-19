@@ -62,7 +62,7 @@ on:
         default: ''
         type: string
       push_latest:
-        description: 'Push a :latest tag when building from the main branch'
+        description: 'Push a :latest tag. On tag builds only when the tag is the highest stable semver tag.'
         required: false
         default: true
         type: boolean
@@ -343,10 +343,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # On tag builds :latest follows the highest stable semver tag, so a patch
+      # for an older release line never moves it.
+      - name: Decide latest
+        id: latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          REF_TYPE: ${{ github.ref_type }}
+          PUSH_LATEST: ${{ inputs.push_latest }}
+        run: |
+          set -euo pipefail
+          if [ "${PUSH_LATEST}" == "true" ] && [ "${REF_TYPE}" == "tag" ]; then
+            HIGHEST=$(gh api --paginate "repos/${REPOSITORY}/git/matching-refs/tags" --jq '.[].ref' \
+              | sed 's|^refs/tags/||' | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n1 || true)
+            [ "${GITHUB_REF_NAME}" == "${HIGHEST}" ] || PUSH_LATEST=false
+            echo "Tag ${GITHUB_REF_NAME}, highest stable ${HIGHEST:-none}: push_latest=${PUSH_LATEST}" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "push_latest=${PUSH_LATEST}" >> "$GITHUB_OUTPUT"
+
       - name: Create and push manifest
         env:
           IMAGE: ${{ inputs.image }}
           VERSION: ${{ inputs.version }}
+          PUSH_LATEST: ${{ steps.latest.outputs.push_latest }}
           RESULT_AMD64: ${{ needs.build-amd64.result }}
           RESULT_ARM64: ${{ needs.build-arm64.result }}
           RESULT_ARMV7: ${{ needs.build-armv7.result }}
@@ -359,7 +379,7 @@ jobs:
 
           docker buildx imagetools create -t "${IMAGE}:${VERSION}" ${IMAGES}
 
-          if [ "${{ inputs.push_latest }}" == "true" ]; then
+          if [ "${PUSH_LATEST}" == "true" ]; then
             docker buildx imagetools create -t "${IMAGE}:latest" ${IMAGES}
           fi
 
@@ -372,10 +392,11 @@ jobs:
         env:
           IMAGE: ${{ inputs.image }}
           VERSION: ${{ inputs.version }}
+          PUSH_LATEST: ${{ steps.latest.outputs.push_latest }}
         run: |
           DIGEST=$(docker buildx imagetools inspect "${IMAGE}:${VERSION}" | grep -m1 "^Digest:" | awk '{print $2}')
           cosign sign --yes --recursive "${IMAGE}@${DIGEST}"
-          if [ "${{ inputs.push_latest }}" == "true" ]; then
+          if [ "${PUSH_LATEST}" == "true" ]; then
             DIGEST_LATEST=$(docker buildx imagetools inspect "${IMAGE}:latest" | grep -m1 "^Digest:" | awk '{print $2}')
             cosign sign --yes --recursive "${IMAGE}@${DIGEST_LATEST}"
           fi

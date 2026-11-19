@@ -79,6 +79,7 @@ Runs [release-please](https://github.com/googleapis/release-please) to manage ve
 | `release_type` | `''` | Release type for release-please (e.g. `simple`, `node`, `python`). Leave empty to use config-file only. |
 | `config_file` | `'release-please-config.json'` | Path to release-please config file |
 | `manifest_file` | `'.release-please-manifest.json'` | Path to release-please manifest file |
+| `target_branch` | `''` | Branch to open the release PR against. Leave empty for the branch the caller runs on. |
 | `auto_release` | `false` | Automatically merge the release PR when checks pass |
 | `runs_on` | `'self-hosted'` | Runner OS to use |
 
@@ -130,7 +131,7 @@ Builds a Docker image natively on amd64 and arm64 runners, cross-compiles armv7 
 | `build_args_armv7` | no | `''` | Extra build args for the armv7 job only |
 | `build_secrets` | no | `''` | Docker build secrets as literal `id=value` pairs — values cannot be secret references |
 | `build_secret_envs` | no | `''` | Mount env vars as docker build secrets (multiline `id=envname`). Use this for secrets — `GITHUB_TOKEN` is always available, others require `secrets: inherit` |
-| `push_latest` | no | `true` | Push a `:latest` tag alongside the version tag |
+| `push_latest` | no | `true` | Push a `:latest` tag alongside the version tag. On tag builds only when the tag is the highest stable semver tag. |
 | `runner_amd64` | no | `arc-runner-set-amd64` | Runner label for amd64 native builds |
 | `runner_arm64` | no | `arc-runner-set-arm64` | Runner label for arm64 native builds |
 | `runner_armv7` | no | `self-hosted` | Runner label for armv7 builds |
