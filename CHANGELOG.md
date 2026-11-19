@@ -5,6 +5,13 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.16.1](https://github.com/mogenius/github-actions/compare/v1.16.0...v1.16.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* allow branch names as commit scope ([1d0b7ee](https://github.com/mogenius/github-actions/commit/1d0b7ee98d58463a8b8e76b61d2d325d20a38628))
+
 ## [1.16.0](https://github.com/mogenius/github-actions/compare/v1.15.0...v1.16.0) (2026-11-19)
 
 
