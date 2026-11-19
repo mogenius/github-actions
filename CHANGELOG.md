@@ -5,6 +5,13 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.16.0](https://github.com/mogenius/github-actions/compare/v1.15.0...v1.16.0) (2026-11-19)
+
+
+### Features
+
+* support out-of-band releases ([5de8921](https://github.com/mogenius/github-actions/commit/5de892110e567801e7b782bcecfca0f0daa7f83c))
+
 ## [1.15.0](https://github.com/mogenius/github-actions/compare/v1.14.1...v1.15.0) (2026-11-17)
 
 
