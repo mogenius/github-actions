@@ -5,6 +5,13 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.16.2](https://github.com/mogenius/github-actions/compare/v1.16.1...v1.16.2) (2026-11-19)
+
+
+### Bug Fixes
+
+* **helm-publish:** preserve created timestamps when updating index ([9ad1991](https://github.com/mogenius/github-actions/commit/9ad19913377882c00a43ed0c782412e34dd26ab2))
+
 ## [1.16.1](https://github.com/mogenius/github-actions/compare/v1.16.0...v1.16.1) (2026-11-19)
 
 
