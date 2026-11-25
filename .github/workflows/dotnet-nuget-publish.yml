@@ -1,0 +1,141 @@
+name: NuGet Publish
+
+# Publishes to nuget.org via Trusted Publishing (OIDC) only: no long-lived API key
+# is stored anywhere. The caller must grant `id-token: write` and a matching
+# Trusted Publishing policy must exist on nuget.org.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Package version passed as -p:PackageVersion'
+        required: true
+        type: string
+      nuget_user:
+        description: 'nuget.org profile name that owns the Trusted Publishing policy'
+        required: true
+        type: string
+      path:
+        description: 'Working directory'
+        required: false
+        default: '.'
+        type: string
+      project:
+        description: 'Solution or project file to pack, relative to path (omit to let dotnet pick the one in path)'
+        required: false
+        default: ''
+        type: string
+      dotnet_version:
+        description: '.NET SDK version to use (e.g. 10.0.x)'
+        required: false
+        default: '10.0.x'
+        type: string
+      configuration:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: string
+      symbols:
+        description: 'Also build and push a .snupkg symbol package'
+        required: false
+        default: true
+        type: boolean
+      skip_duplicate:
+        description: 'Pass --skip-duplicate so re-runs do not fail on already published versions'
+        required: false
+        default: true
+        type: boolean
+      args:
+        description: 'Extra arguments passed to dotnet pack'
+        required: false
+        default: ''
+        type: string
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+
+jobs:
+  nuget-publish:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    # id-token: write is needed for the nuget.org OIDC login. A reusable workflow
+    # cannot exceed the caller's permissions, so if the calling job does not grant
+    # it, GitHub rejects the run before it starts.
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+
+      - name: Pack
+        env:
+          PROJECT: ${{ inputs.project }}
+          CONFIGURATION: ${{ inputs.configuration }}
+          VERSION: ${{ inputs.version }}
+          SYMBOLS: ${{ inputs.symbols }}
+          EXTRA_ARGS: ${{ inputs.args }}
+          OUT_DIR: ${{ runner.temp }}/nupkgs
+        run: |
+          ARGS=(--configuration "${CONFIGURATION}" --output "${OUT_DIR}" "-p:PackageVersion=${VERSION}")
+          [ "${SYMBOLS}" == "true" ] && ARGS+=(--include-symbols -p:SymbolPackageFormat=snupkg)
+          [ -n "${EXTRA_ARGS}" ] && ARGS+=(${EXTRA_ARGS})
+          dotnet pack ${PROJECT:+"${PROJECT}"} "${ARGS[@]}"
+
+          if ! ls "${OUT_DIR}"/*.nupkg >/dev/null 2>&1; then
+            echo "::error::dotnet pack produced no .nupkg — is IsPackable set on the project?"
+            exit 1
+          fi
+
+      # Requested right before the push: the key is only valid for one hour.
+      - name: NuGet login
+        id: nuget-login
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ inputs.nuget_user }}
+
+      # dotnet nuget push picks up the matching .snupkg next to each .nupkg on its
+      # own, so only the .nupkg files are passed.
+      - name: Push
+        env:
+          SKIP_DUPLICATE: ${{ inputs.skip_duplicate }}
+          API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+          OUT_DIR: ${{ runner.temp }}/nupkgs
+        run: |
+          ARGS=(--source https://api.nuget.org/v3/index.json --api-key "${API_KEY}")
+          [ "${SKIP_DUPLICATE}" == "true" ] && ARGS+=(--skip-duplicate)
+          for pkg in "${OUT_DIR}"/*.nupkg; do
+            [[ "${pkg}" == *.symbols.nupkg ]] && continue
+            dotnet nuget push "${pkg}" "${ARGS[@]}"
+          done
+
+      - name: Summary
+        env:
+          VERSION: ${{ inputs.version }}
+          OUT_DIR: ${{ runner.temp }}/nupkgs
+        run: |
+          echo "## NuGet Publish" >> $GITHUB_STEP_SUMMARY
+          echo "| Key | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${VERSION} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Source | nuget.org (Trusted Publishing) |" >> $GITHUB_STEP_SUMMARY
+          for pkg in "${OUT_DIR}"/*.nupkg; do
+            echo "| Package | $(basename "${pkg}") |" >> $GITHUB_STEP_SUMMARY
+          done
