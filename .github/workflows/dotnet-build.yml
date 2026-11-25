@@ -1,0 +1,100 @@
+name: .NET Build
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: 'Working directory'
+        required: false
+        default: '.'
+        type: string
+      project:
+        description: 'Solution or project file to build, relative to path (omit to let dotnet pick the one in path)'
+        required: false
+        default: ''
+        type: string
+      dotnet_version:
+        description: '.NET SDK version to use (e.g. 10.0.x)'
+        required: false
+        default: '10.0.x'
+        type: string
+      configuration:
+        description: 'Build configuration'
+        required: false
+        default: 'Release'
+        type: string
+      version:
+        description: 'Version passed as -p:Version (omit to keep the project version)'
+        required: false
+        default: ''
+        type: string
+      args:
+        description: 'Extra arguments passed to dotnet build'
+        required: false
+        default: ''
+        type: string
+      runner:
+        description: 'Runner label'
+        required: false
+        default: 'self-hosted'
+        type: string
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: '1'
+
+jobs:
+  dotnet-build:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.path }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # ARC runners start from a clean container, so the NuGet package dir does not
+      # exist yet and actions/cache would abort the restore on the unresolved path.
+      - name: Prepare NuGet cache dir
+        run: mkdir -p ~/.nuget/packages
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+
+      # Restored separately instead of via setup-dotnet's `cache: true`, which
+      # requires packages.lock.json and has no restore-keys fallback.
+      - name: Restore NuGet cache
+        id: nuget-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/*.csproj', '**/*.fsproj', '**/Directory.Packages.props', '**/Directory.Build.props', '**/packages.lock.json') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Build
+        env:
+          PROJECT: ${{ inputs.project }}
+          CONFIGURATION: ${{ inputs.configuration }}
+          VERSION: ${{ inputs.version }}
+          EXTRA_ARGS: ${{ inputs.args }}
+        run: |
+          ARGS=(--configuration "${CONFIGURATION}")
+          [ -n "${VERSION}" ] && ARGS+=("-p:Version=${VERSION}")
+          [ -n "${EXTRA_ARGS}" ] && ARGS+=(${EXTRA_ARGS})
+          dotnet build ${PROJECT:+"${PROJECT}"} "${ARGS[@]}"
+
+      # Saved only after a green run: an exact key is never written again, so a cache
+      # saved after a failed restore would stay incomplete until the projects change.
+      - name: Save NuGet cache
+        if: success() && steps.nuget-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.nuget/packages
+          key: ${{ steps.nuget-cache.outputs.cache-primary-key }}

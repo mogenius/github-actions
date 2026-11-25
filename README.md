@@ -484,3 +484,101 @@ unittest:
     path: ./charts/my-service
     test_files: 'tests/**/*.yaml'
 ```
+
+---
+
+### `dotnet-build.yml` — .NET Build
+
+Builds a .NET solution or project with `dotnet build`. The NuGet package cache is restored with a fallback key and saved only after a green run.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | no | `'.'` | Working directory |
+| `project` | no | `''` | Solution or project file relative to `path` (omit to let `dotnet` pick the one in `path`) |
+| `dotnet_version` | no | `'10.0.x'` | .NET SDK version to use |
+| `configuration` | no | `'Release'` | Build configuration |
+| `version` | no | `''` | Version passed as `-p:Version` (omit to keep the project version) |
+| `args` | no | `''` | Extra arguments passed to `dotnet build` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+build:
+  uses: mogenius/github-actions/.github/workflows/dotnet-build.yml@<sha> # main
+  with:
+    project: MyService.sln
+    version: ${{ needs.prepare.outputs.version }}
+```
+
+---
+
+### `dotnet-test.yml` — .NET Test
+
+Runs `dotnet test` with optional test filtering.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `path` | no | `'.'` | Working directory |
+| `project` | no | `''` | Solution or test project file relative to `path` (omit to let `dotnet` pick the one in `path`) |
+| `dotnet_version` | no | `'10.0.x'` | .NET SDK version to use |
+| `configuration` | no | `'Release'` | Build configuration |
+| `filter` | no | `''` | Test filter passed to `--filter` |
+| `args` | no | `''` | Extra arguments passed to `dotnet test` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+test:
+  uses: mogenius/github-actions/.github/workflows/dotnet-test.yml@<sha> # main
+  with:
+    project: MyService.sln
+    filter: 'Category!=Integration'
+```
+
+---
+
+### `dotnet-nuget-publish.yml` — NuGet Publish
+
+Packs a .NET project with `dotnet pack` and pushes the resulting packages (plus `.snupkg` symbol packages) to nuget.org using [Trusted Publishing](https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing). No API key is stored: a short-lived key is exchanged for the job's GitHub OIDC token right before the push.
+
+#### Requirements
+
+- A Trusted Publishing policy on nuget.org (profile → Trusted Publishing) for the calling repository and workflow file.
+- The calling job must grant `id-token: write`. A reusable workflow cannot raise its own permissions, so it has to come from the caller.
+
+#### Inputs
+
+| Name | Required | Default | Description |
+|------|----------|---------|-------------|
+| `version` | yes | — | Package version passed as `-p:PackageVersion` |
+| `nuget_user` | yes | — | nuget.org profile name that owns the Trusted Publishing policy |
+| `path` | no | `'.'` | Working directory |
+| `project` | no | `''` | Solution or project file relative to `path` (omit to let `dotnet` pick the one in `path`) |
+| `dotnet_version` | no | `'10.0.x'` | .NET SDK version to use |
+| `configuration` | no | `'Release'` | Build configuration |
+| `symbols` | no | `true` | Also build and push a `.snupkg` symbol package |
+| `skip_duplicate` | no | `true` | Pass `--skip-duplicate` so re-runs do not fail on already published versions |
+| `args` | no | `''` | Extra arguments passed to `dotnet pack` |
+| `runner` | no | `'self-hosted'` | Runner label |
+
+#### Example
+
+```yaml
+publish:
+  needs: [prepare]
+  if: needs.prepare.outputs.is_release == 'true'
+  permissions:
+    contents: read
+    id-token: write
+  uses: mogenius/github-actions/.github/workflows/dotnet-nuget-publish.yml@<sha> # main
+  with:
+    project: src/MyLibrary/MyLibrary.csproj
+    version: ${{ needs.prepare.outputs.semver }}
+    nuget_user: mogenius
+```
