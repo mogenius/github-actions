@@ -5,6 +5,18 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.17.0](https://github.com/mogenius/github-actions/compare/v1.16.2...v1.17.0) (2026-11-26)
+
+
+### Features
+
+* adding reusable workflows for dotnet ([f4b8c8f](https://github.com/mogenius/github-actions/commit/f4b8c8fd4bc5b0d89541c39357728f3368e4ede8))
+
+
+### Bug Fixes
+
+* **deps:** update zizmorcore/zizmor-action action to v0.9.2 ([e684409](https://github.com/mogenius/github-actions/commit/e68440941a79d29c718e7c419e62536e414e42b4))
+
 ## [1.16.2](https://github.com/mogenius/github-actions/compare/v1.16.1...v1.16.2) (2026-11-19)
 
 
