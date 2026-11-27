@@ -5,6 +5,14 @@
 
 * sec delimiter ([cab0250](https://github.com/mogenius/github-actions/commit/cab025083b7307a7adcd9cf0e8988a0f0b96ff4e))
 
+## [1.17.1](https://github.com/mogenius/github-actions/compare/v1.17.0...v1.17.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** update actions/create-github-app-token action to v3.4.0 ([ca92bcc](https://github.com/mogenius/github-actions/commit/ca92bcc4bcfd10e20f3118531cd56c9a5a22df52))
+* scope GitHub App token permissions to satisfy zizmor ([bc366cb](https://github.com/mogenius/github-actions/commit/bc366cb87feb3155d3dd38c6da683472178aad6f))
+
 ## [1.17.0](https://github.com/mogenius/github-actions/compare/v1.16.2...v1.17.0) (2026-11-26)
 
 
